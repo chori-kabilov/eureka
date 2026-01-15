@@ -1,0 +1,51 @@
+@page
+@model RazorWebApp.Pages.Dashboard.IndexModel
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4">Добро пожаловать, @User.Identity?.Name!</h2>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Курсы</h5>
+                    <p class="card-text display-4">@Model.CoursesCount</p>
+                </div>
+                <div class="card-footer">
+                    <a asp-page="/Courses/Index" class="btn btn-light btn-sm">Перейти</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Студенты</h5>
+                    <p class="card-text display-4">—</p>
+                </div>
+                <div class="card-footer">
+                    <span class="text-white-50">Скоро</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h5 class="card-title">Группы</h5>
+                    <p class="card-text display-4">—</p>
+                </div>
+                <div class="card-footer">
+                    <span class="text-white-50">Скоро</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

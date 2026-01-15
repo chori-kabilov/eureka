@@ -37,12 +37,12 @@ public class LoginHandler
 
         if (user == null)
             return Result<AuthResultDto>.Failure(
-                Error.NotFound("Пользователь не найден"));
+                Error.NotFound("Пользователь"));
 
         // Проверка пароля
         if (!_passwordHasher.Verify(request.Password, user.PasswordHash))
             return Result<AuthResultDto>.Failure(
-                new Error("INVALID_PASSWORD", "Неверный пароль"));
+                new Error("INVALID_PASSWORD_OR_PHONE", "Неверный номер телефона или пароль"));
 
         // Генерация токена
         var token = _jwtService.GenerateToken(user);
