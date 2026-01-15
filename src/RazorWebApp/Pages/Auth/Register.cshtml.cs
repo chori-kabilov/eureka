@@ -41,7 +41,7 @@ public class RegisterModel : PageModel
 
         if (!response.Success || response.Data == null)
         {
-            ErrorMessage = response.Error?.Message ?? "Ошибка регистрации";
+            ErrorMessage = response.Error ?? "Ошибка регистрации";
             return Page();
         }
 

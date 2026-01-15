@@ -43,7 +43,7 @@ public class LoginModel : PageModel
 
         if (!response.Success || response.Data == null)
         {
-            ErrorMessage = response.Error?.Message ?? "Ошибка входа";
+            ErrorMessage = response.Error ?? "Ошибка входа";
             return Page();
         }
 

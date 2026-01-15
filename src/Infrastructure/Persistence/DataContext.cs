@@ -1,6 +1,10 @@
 using Application.Abstractions;
+using Domain.Admins;
 using Domain.Common;
 using Domain.Courses;
+using Domain.Parents;
+using Domain.Students;
+using Domain.Teachers;
 using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,12 +16,22 @@ public class DataContext(
     ICurrentUser currentUser)
     : DbContext(options), IDataContext
 {
-    public DbSet<Course> CoursesSet { get; set; } = null!;
     public DbSet<User> UsersSet { get; set; } = null!;
+    public DbSet<Admin> AdminsSet { get; set; } = null!;
+    public DbSet<Student> StudentsSet { get; set; } = null!;
+    public DbSet<Teacher> TeachersSet { get; set; } = null!;
+    public DbSet<Parent> ParentsSet { get; set; } = null!;
+    public DbSet<Child> ChildrenSet { get; set; } = null!;
+    public DbSet<Course> CoursesSet { get; set; } = null!;
 
     // IDataContext реализация
-    IQueryable<Course> IDataContext.Courses => CoursesSet;
     IQueryable<User> IDataContext.Users => UsersSet;
+    IQueryable<Admin> IDataContext.Admins => AdminsSet;
+    IQueryable<Student> IDataContext.Students => StudentsSet;
+    IQueryable<Teacher> IDataContext.Teachers => TeachersSet;
+    IQueryable<Parent> IDataContext.Parents => ParentsSet;
+    IQueryable<Child> IDataContext.Children => ChildrenSet;
+    IQueryable<Course> IDataContext.Courses => CoursesSet;
 
     void IDataContext.Add<T>(T entity) => Set<T>().Add(entity);
     void IDataContext.Update<T>(T entity) => Set<T>().Update(entity);
@@ -31,8 +45,13 @@ public class DataContext(
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(DataContext).Assembly);
 
         // Глобальные фильтры для soft delete
-        modelBuilder.Entity<Course>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<User>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Admin>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Student>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Teacher>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Parent>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Child>().HasQueryFilter(e => !e.IsDeleted);
+        modelBuilder.Entity<Course>().HasQueryFilter(e => !e.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

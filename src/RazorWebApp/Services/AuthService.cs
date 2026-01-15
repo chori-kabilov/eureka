@@ -1,5 +1,5 @@
-using RazorWebApp.Models;
 using RazorWebApp.Models.Auth;
+using RazorWebApp.Models.Common;
 
 namespace RazorWebApp.Services;
 

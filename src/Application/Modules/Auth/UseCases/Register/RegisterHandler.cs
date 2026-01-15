@@ -28,7 +28,7 @@ public class RegisterHandler(
 
         if (existingUser != null)
             return Result<AuthResultDto>.Failure(
-                Error.Conflict("Пользователь с таким телефоном уже существует"));
+                Error.Conflict("Пользователь с таким номером телефона уже существует"));
 
         // Создание пользователя
         var user = new User
@@ -36,8 +36,7 @@ public class RegisterHandler(
             Id = Guid.NewGuid(),
             Phone = request.Phone.Trim(),
             FullName = request.FullName.Trim(),
-            PasswordHash = passwordHasher.Hash(request.Password),
-            Role = Role.User  // По умолчанию User
+            PasswordHash = passwordHasher.Hash(request.Password)
         };
 
         db.Add(user);
@@ -51,7 +50,10 @@ public class RegisterHandler(
             UserId = user.Id,
             FullName = user.FullName,
             Phone = user.Phone,
-            Role = user.Role,
+            IsAdmin = false,
+            IsStudent = false,
+            IsTeacher = false,
+            IsParent = false,
             Token = token
         });
     }

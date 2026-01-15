@@ -22,15 +22,29 @@ public class JwtService(IConfiguration configuration) : IJwtService
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.FullName),
-            new Claim(ClaimTypes.MobilePhone, user.Phone),
-            new Claim(ClaimTypes.Role, user.Role.ToString())
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new(ClaimTypes.Name, user.FullName),
+            new(ClaimTypes.MobilePhone, user.Phone)
         };
+
+        // Добавляем роли на основе профилей
+        if (user.AdminProfile != null)
+            claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+        if (user.StudentProfile != null)
+            claims.Add(new Claim(ClaimTypes.Role, "Student"));
+        if (user.TeacherProfile != null)
+            claims.Add(new Claim(ClaimTypes.Role, "Teacher"));
+        if (user.ParentProfile != null)
+            claims.Add(new Claim(ClaimTypes.Role, "Parent"));
+        
+        // Базовая роль если нет профилей
+        if (user.AdminProfile == null && user.StudentProfile == null && 
+            user.TeacherProfile == null && user.ParentProfile == null)
+            claims.Add(new Claim(ClaimTypes.Role, "User"));
 
         var token = new JwtSecurityToken(
             issuer: issuer,

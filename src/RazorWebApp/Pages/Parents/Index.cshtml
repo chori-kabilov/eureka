@@ -1,0 +1,97 @@
+@page
+@model RazorWebApp.Pages.Parents.IndexModel
+@{
+    ViewData["Title"] = "Родители";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person-hearts me-2"></i>Родители</h2>
+        <a asp-page="/Parents/Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить родителя
+        </a>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-5">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Поиск по имени или телефону..." value="@Model.Search" />
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Таблица -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th>Детей</th>
+                        <th>Дата регистрации</th>
+                        <th width="100"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Parents?.Items?.Any() == true)
+                    {
+                        @foreach (var parent in Model.Parents.Items)
+                        {
+                            <tr>
+                                <td class="fw-medium">@parent.FullName</td>
+                                <td>@parent.Phone</td>
+                                <td>
+                                    <span class="badge bg-info">@parent.ChildrenCount</span>
+                                </td>
+                                <td>@parent.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-page="/Children/Index" asp-route-parentId="@parent.Id" 
+                                           class="btn btn-outline-primary" title="Дети">
+                                            <i class="bi bi-people"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Родители не найдены
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    @if (Model.Parents?.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.Parents.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-page="/Parents/Index" 
+                           asp-route-currentPage="@i" asp-route-search="@Model.Search">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

@@ -31,8 +31,12 @@ public class LoginHandler
         Guard.AgainstEmpty(request.Phone, "Телефон");
         Guard.AgainstEmpty(request.Password, "Пароль");
 
-        // Поиск пользователя
+        // Поиск пользователя с профилями
         var user = await _db.Users
+            .Include(u => u.AdminProfile)
+            .Include(u => u.StudentProfile)
+            .Include(u => u.TeacherProfile)
+            .Include(u => u.ParentProfile)
             .FirstOrDefaultAsync(u => u.Phone == request.Phone, ct);
 
         if (user == null)
@@ -52,7 +56,10 @@ public class LoginHandler
             UserId = user.Id,
             FullName = user.FullName,
             Phone = user.Phone,
-            Role = user.Role,
+            IsAdmin = user.AdminProfile != null,
+            IsStudent = user.StudentProfile != null,
+            IsTeacher = user.TeacherProfile != null,
+            IsParent = user.ParentProfile != null,
             Token = token
         });
     }

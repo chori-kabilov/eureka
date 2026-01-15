@@ -30,11 +30,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("password_hash")
             .IsRequired();
 
-        builder.Property(u => u.Role)
-            .HasColumnName("role")
-            .HasConversion<int>()
-            .HasDefaultValue(Role.User);
-
         // Аудит
         builder.Property(u => u.CreatedAt).HasColumnName("created_at");
         builder.Property(u => u.CreatedBy).HasColumnName("created_by");
@@ -47,7 +42,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         // Индексы
         builder.HasIndex(u => u.Phone).IsUnique().HasDatabaseName("idx_users_phone");
-        builder.HasIndex(u => u.Role).HasDatabaseName("idx_users_role");
         builder.HasIndex(u => u.IsDeleted).HasDatabaseName("idx_users_is_deleted");
     }
 }

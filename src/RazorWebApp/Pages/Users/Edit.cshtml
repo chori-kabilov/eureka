@@ -1,0 +1,69 @@
+@page "{id:guid}"
+@model RazorWebApp.Pages.Users.EditModel
+@{
+    ViewData["Title"] = "Редактировать пользователя";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-gear me-2"></i>Редактировать пользователя
+                    </h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success">@Model.SuccessMessage</div>
+                    }
+
+                    @if (Model.UserData != null)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label text-muted">ФИО</label>
+                            <p class="form-control-plaintext fw-bold">@Model.UserData.FullName</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Телефон</label>
+                            <p class="form-control-plaintext">@Model.UserData.Phone</p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Текущие роли</label>
+                            <p class="form-control-plaintext">@Model.UserData.RoleName</p>
+                        </div>
+
+                        <form method="post">
+                            <div class="mb-4">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" 
+                                           asp-for="IsAdmin" id="isAdminSwitch">
+                                    <label class="form-check-label" for="isAdminSwitch">
+                                        Администратор
+                                    </label>
+                                </div>
+                                <div class="form-text">
+                                    Администратор имеет полный доступ к системе
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a asp-page="/Users/Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Назад
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg"></i> Сохранить
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

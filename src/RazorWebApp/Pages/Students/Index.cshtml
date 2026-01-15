@@ -1,0 +1,108 @@
+@page
+@model RazorWebApp.Pages.Students.IndexModel
+@{
+    ViewData["Title"] = "Студенты";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-mortarboard me-2"></i>Студенты</h2>
+        <a asp-page="/Students/Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg"></i> Добавить студента
+        </a>
+    </div>
+
+    <!-- Фильтры -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" 
+                           placeholder="Поиск по имени или телефону..." value="@Model.Search" />
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">Все статусы</option>
+                        <option value="0" selected="@(Model.StatusFilter == 0)">Активный</option>
+                        <option value="1" selected="@(Model.StatusFilter == 1)">Неактивный</option>
+                        <option value="2" selected="@(Model.StatusFilter == 2)">Закончил</option>
+                        <option value="3" selected="@(Model.StatusFilter == 3)">Отчислен</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="bi bi-search"></i> Найти
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Таблица -->
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th>Статус</th>
+                        <th>Дата записи</th>
+                        <th width="100"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Students?.Items?.Any() == true)
+                    {
+                        @foreach (var student in Model.Students.Items)
+                        {
+                            <tr>
+                                <td class="fw-medium">@student.FullName</td>
+                                <td>@student.Phone</td>
+                                <td>
+                                    <span class="badge @student.StatusBadgeClass">@student.StatusName</span>
+                                </td>
+                                <td>@student.CreatedAt.ToString("dd.MM.yyyy")</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-page="/Students/Edit" asp-route-id="@student.Id" 
+                                           class="btn btn-outline-primary" title="Редактировать">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                Студенты не найдены
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Пагинация -->
+    @if (Model.Students?.TotalPages > 1)
+    {
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                @for (int i = 1; i <= Model.Students.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-page="/Students/Index" 
+                           asp-route-currentPage="@i" 
+                           asp-route-search="@Model.Search" 
+                           asp-route-status="@Model.StatusFilter">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+</div>

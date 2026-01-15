@@ -39,17 +39,23 @@ public class AuthResult
     public Guid UserId { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
-    public int Role { get; set; }
+    public bool IsAdmin { get; set; }
+    public bool IsStudent { get; set; }
+    public bool IsTeacher { get; set; }
+    public bool IsParent { get; set; }
     public string Token { get; set; } = string.Empty;
 
     // Название роли для отображения
-    public string RoleName => Role switch
+    public string RoleName
     {
-        0 => "User",
-        1 => "Admin",
-        2 => "Teacher",
-        3 => "Student",
-        4 => "Parent",
-        _ => "User"
-    };
+        get
+        {
+            var roles = new List<string>();
+            if (IsAdmin) roles.Add("Admin");
+            if (IsTeacher) roles.Add("Teacher");
+            if (IsStudent) roles.Add("Student");
+            if (IsParent) roles.Add("Parent");
+            return roles.Count > 0 ? string.Join(", ", roles) : "User";
+        }
+    }
 }

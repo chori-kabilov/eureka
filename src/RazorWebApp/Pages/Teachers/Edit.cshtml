@@ -1,0 +1,76 @@
+@page "{id:guid}"
+@model RazorWebApp.Pages.Teachers.EditModel
+@{
+    ViewData["Title"] = "Редактировать учителя";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="bi bi-pencil me-2"></i>Редактировать учителя</h5>
+                </div>
+                <div class="card-body">
+                    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                    {
+                        <div class="alert alert-success">@Model.SuccessMessage</div>
+                    }
+                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                    {
+                        <div class="alert alert-danger">@Model.ErrorMessage</div>
+                    }
+
+                    @if (Model.Teacher != null)
+                    {
+                        <div class="mb-3">
+                            <label class="form-label text-muted">ФИО</label>
+                            <p class="fw-medium">@Model.Teacher.FullName</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Телефон</label>
+                            <p>@Model.Teacher.Phone</p>
+                        </div>
+
+                        <form method="post">
+                            <div class="mb-3">
+                                <label class="form-label">Специализация</label>
+                                <input asp-for="Specialization" class="form-control" />
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Тип оплаты</label>
+                                    <select asp-for="PaymentType" class="form-select">
+                                        <option value="0">Почасовая</option>
+                                        <option value="1">За занятие</option>
+                                        <option value="2">Оклад</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Ставка (сум)</label>
+                                    <input asp-for="HourlyRate" type="number" class="form-control" />
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">О себе</label>
+                                <textarea asp-for="Bio" class="form-control" rows="3"></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a asp-page="/Teachers/Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Назад
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-lg"></i> Сохранить
+                                </button>
+                            </div>
+                        </form>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
