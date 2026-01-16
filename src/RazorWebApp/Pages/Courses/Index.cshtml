@@ -4,110 +4,88 @@
     ViewData["Title"] = "Курсы";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-book me-2"></i>Курсы</h2>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Курсы</h1>
+            <p class="page-subtitle">Каталог учебных курсов</p>
+        </div>
         <a asp-page="/Courses/Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Добавить курс
+            <i class="bi bi-plus-lg me-1"></i> Создать курс
         </a>
     </div>
+</div>
 
-    <!-- Фильтры -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-4">
-                    <input type="text" name="search" class="form-control" 
-                           placeholder="Поиск по названию..." value="@Model.Search" />
-                </div>
-                <div class="col-md-3">
-                    <select name="showArchived" class="form-select">
-                        <option value="false" selected="@(!Model.ShowArchived)">Активные</option>
-                        <option value="true" selected="@Model.ShowArchived">Архивные</option>
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-search"></i> Найти
-                    </button>
-                </div>
-            </form>
-        </div>
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Поиск</label>
+                <input type="text" name="search" class="form-control" placeholder="Название курса..." value="@Model.Search" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i> Искать
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Таблица -->
-    <div class="card">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Название</th>
-                        <th>Цена</th>
-                        <th>Длительность</th>
-                        <th>Мест</th>
-                        <th>Статус</th>
-                        <th width="100"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Courses?.Items?.Any() == true)
-                    {
-                        @foreach (var course in Model.Courses.Items)
-                        {
-                            <tr>
-                                <td>
-                                    <div class="fw-medium">@course.Name</div>
-                                    @if (!string.IsNullOrEmpty(course.Description))
-                                    {
-                                        <small class="text-muted">@course.Description</small>
-                                    }
-                                </td>
-                                <td>@course.Price.ToString("N0") сум</td>
-                                <td>@course.DurationHours ч</td>
-                                <td>@course.MaxStudents</td>
-                                <td>
-                                    <span class="badge @course.StatusBadgeClass">@course.StatusName</span>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-page="/Courses/Edit" asp-route-id="@course.Id" 
-                                           class="btn btn-outline-primary" title="Редактировать">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Курсы не найдены
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Пагинация -->
-    @if (Model.Courses?.TotalPages > 1)
+<!-- Карточки курсов -->
+<div class="row">
+    @if (Model.Courses?.Items?.Any() == true)
     {
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= Model.Courses.TotalPages; i++)
-                {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" asp-page="/Courses/Index" 
-                           asp-route-currentPage="@i" 
-                           asp-route-search="@Model.Search"
-                           asp-route-showArchived="@Model.ShowArchived">@i</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+        @foreach (var c in Model.Courses.Items)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="stat-icon blue" style="width: 40px; height: 40px; font-size: 18px;">
+                                <i class="bi bi-book"></i>
+                            </div>
+                            <span class="badge @c.StatusBadgeClass">@c.StatusName</span>
+                        </div>
+                        <h5 class="fw-semibold mb-2">@c.Name</h5>
+                        @if (!string.IsNullOrEmpty(c.Description))
+                        {
+                            <p class="text-muted small mb-3" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                @c.Description
+                            </p>
+                        }
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                @if (c.DurationHours > 0)
+                                {
+                                    <span><i class="bi bi-clock me-1"></i>@c.DurationHours ч.</span>
+                                }
+                            </div>
+                            <a asp-page="/Courses/Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">
+                                Редактировать
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-book"></i>
+                        <h5>Нет курсов</h5>
+                        <p>Создайте первый курс</p>
+                        <a asp-page="/Courses/Create" class="btn btn-primary mt-2">
+                            <i class="bi bi-plus-lg me-1"></i> Создать курс
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </div>

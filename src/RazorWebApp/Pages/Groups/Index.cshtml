@@ -1,0 +1,115 @@
+@page
+@model RazorWebApp.Pages.Groups.IndexModel
+@{
+    ViewData["Title"] = "Группы";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Группы</h1>
+            <p class="page-subtitle">Управление учебными группами</p>
+        </div>
+        <a asp-page="/Groups/Create" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i> Создать группу
+        </a>
+    </div>
+</div>
+
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Поиск</label>
+                <input type="text" name="search" class="form-control" placeholder="Название группы..." value="@Model.Search" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Статус</label>
+                <select name="status" class="form-select">
+                    <option value="">Все статусы</option>
+                    <option value="1" selected="@(Model.Status == 1)">Активные</option>
+                    <option value="0" selected="@(Model.Status == 0)">Черновики</option>
+                    <option value="2" selected="@(Model.Status == 2)">Завершённые</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-funnel me-1"></i> Фильтр
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Таблица групп -->
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Группа</th>
+                    <th>Курс</th>
+                    <th>Учитель</th>
+                    <th>Студенты</th>
+                    <th>Период</th>
+                    <th>Статус</th>
+                    <th width="120"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Groups?.Items?.Any() == true)
+                {
+                    @foreach (var g in Model.Groups.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="fw-medium">@g.Name</div>
+                                @if (!string.IsNullOrEmpty(g.Code))
+                                {
+                                    <small class="text-muted">@g.Code</small>
+                                }
+                            </td>
+                            <td>@g.CourseName</td>
+                            <td>@g.ResponsibleTeacherName</td>
+                            <td>
+                                <span class="badge bg-primary">@g.CurrentStudents / @g.MaxStudents</span>
+                            </td>
+                            <td class="text-muted small">
+                                @g.StartDate.ToString("dd.MM.yyyy") — @(g.EndDate?.ToString("dd.MM.yyyy") ?? "...")
+                            </td>
+                            <td>
+                                <span class="badge @g.StatusBadgeClass">@g.StatusName</span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-page="/Groups/Details" asp-route-id="@g.Id" class="btn btn-outline-primary" title="Подробнее">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-page="/Groups/Journal" asp-route-id="@g.Id" class="btn btn-outline-warning" title="Журнал">
+                                        <i class="bi bi-journal-text"></i>
+                                    </a>
+                                    <a asp-page="/Groups/Edit" asp-route-id="@g.Id" class="btn btn-outline-secondary" title="Редактировать">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="bi bi-collection"></i>
+                                <h5>Нет групп</h5>
+                                <p>Создайте первую группу</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

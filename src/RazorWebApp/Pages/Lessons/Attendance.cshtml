@@ -1,0 +1,116 @@
+@page "{lessonId:guid}"
+@model RazorWebApp.Pages.Lessons.AttendanceModel
+@{
+    ViewData["Title"] = "Отметка посещаемости";
+}
+
+<div class="container">
+    @if (Model.Lesson != null)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="bi bi-clipboard-check me-2"></i>Отметка посещаемости</h2>
+                <div class="text-muted">
+                    @Model.Lesson.GroupName | @Model.Lesson.Date.ToString("dd.MM.yyyy") 
+                    @Model.Lesson.StartTime.ToString(@"hh\:mm") - @Model.Lesson.EndTime.ToString(@"hh\:mm")
+                </div>
+            </div>
+            <a asp-page="/Groups/Details" asp-route-id="@Model.Lesson.GroupId" asp-route-tab="schedule" 
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">@Model.SuccessMessage</div>
+        }
+
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Студенты (@Model.Students.Count)</span>
+                <div>
+                    <button type="button" class="btn btn-sm btn-success" onclick="markAll(0)">
+                        ✅ Все пришли
+                    </button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="markAll(1)">
+                        ❌ Все отсутствуют
+                    </button>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <form method="post" id="attendanceForm">
+                    <input type="hidden" name="lessonId" value="@Model.Lesson.Id" />
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Имя</th>
+                                <th class="text-center" width="120">Был</th>
+                                <th class="text-center" width="120">Не был</th>
+                                <th class="text-center" width="120">Опоздал</th>
+                                <th class="text-center" width="120">Уважит.</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Students.Count; i++)
+                            {
+                                var student = Model.Students[i];
+                                <tr>
+                                    <td class="fw-medium">
+                                        @student.Name
+                                        @if (student.IsChild)
+                                        {
+                                            <i class="bi bi-person-fill text-info" title="Ребёнок"></i>
+                                        }
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="hidden" name="items[@i].StudentId" value="@student.StudentId" />
+                                        <input type="hidden" name="items[@i].ChildId" value="@student.ChildId" />
+                                        <input type="radio" name="items[@i].Status" value="0" 
+                                               class="btn-check" id="present_@i"
+                                               @(student.Status == 0 ? "checked" : "")>
+                                        <label class="btn btn-outline-success btn-sm" for="present_@i">✅</label>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="radio" name="items[@i].Status" value="1" 
+                                               class="btn-check" id="absent_@i"
+                                               @(student.Status == 1 ? "checked" : "")>
+                                        <label class="btn btn-outline-danger btn-sm" for="absent_@i">❌</label>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="radio" name="items[@i].Status" value="2" 
+                                               class="btn-check" id="late_@i"
+                                               @(student.Status == 2 ? "checked" : "")>
+                                        <label class="btn btn-outline-warning btn-sm" for="late_@i">⚠️</label>
+                                    </td>
+                                    <td class="text-center">
+                                        <input type="radio" name="items[@i].Status" value="3" 
+                                               class="btn-check" id="excused_@i"
+                                               @(student.Status == 3 ? "checked" : "")>
+                                        <label class="btn btn-outline-info btn-sm" for="excused_@i">📋</label>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Сохранить
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Занятие не найдено</div>
+    }
+</div>
+
+<script>
+    function markAll(status) {
+        const radios = document.querySelectorAll(`input[type="radio"][value="${status}"]`);
+        radios.forEach(r => r.checked = true);
+    }
+</script>

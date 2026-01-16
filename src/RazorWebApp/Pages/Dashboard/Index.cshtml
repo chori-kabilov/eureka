@@ -4,46 +4,112 @@
     ViewData["Title"] = "Главная";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4">Добро пожаловать, @User.Identity?.Name!</h2>
+<div class="page-header">
+    <h1 class="page-title">Панель управления</h1>
+    <p class="page-subtitle">Добро пожаловать в систему управления обучением EUREKA</p>
+</div>
+
+<!-- Статистика -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <i class="bi bi-people-fill"></i>
+        </div>
+        <div>
+            <div class="stat-value">@Model.StudentsCount</div>
+            <div class="stat-label">Студентов</div>
         </div>
     </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <i class="bi bi-person-workspace"></i>
+        </div>
+        <div>
+            <div class="stat-value">@Model.TeachersCount</div>
+            <div class="stat-label">Преподавателей</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <i class="bi bi-book-fill"></i>
+        </div>
+        <div>
+            <div class="stat-value">@Model.CoursesCount</div>
+            <div class="stat-label">Курсов</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange">
+            <i class="bi bi-collection-fill"></i>
+        </div>
+        <div>
+            <div class="stat-value">@Model.GroupsCount</div>
+            <div class="stat-label">Активных групп</div>
+        </div>
+    </div>
+</div>
 
-    <div class="row g-4">
-        <div class="col-md-4">
-            <div class="card bg-primary text-white h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Курсы</h5>
-                    <p class="card-text display-4">@Model.CoursesCount</p>
-                </div>
-                <div class="card-footer">
-                    <a asp-page="/Courses/Index" class="btn btn-light btn-sm">Перейти</a>
+<!-- Две колонки -->
+<div class="row">
+    <div class="col-lg-7 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <span>Последние записи на курсы</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="activity-list" style="padding: 0 20px;">
+                    @if (Model.RecentEnrollments?.Any() == true)
+                    {
+                        @foreach (var e in Model.RecentEnrollments)
+                        {
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="bi bi-person"></i>
+                                </div>
+                                <div class="activity-text">
+                                    <div><strong>@e.StudentName</strong> записался на курс "@e.CourseName"</div>
+                                    <div class="activity-time">@e.TimeAgo</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="activity-item">
+                            <div class="activity-text text-muted">Нет недавних записей</div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card bg-success text-white h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Студенты</h5>
-                    <p class="card-text display-4">—</p>
-                </div>
-                <div class="card-footer">
-                    <span class="text-white-50">Скоро</span>
-                </div>
+    </div>
+    
+    <div class="col-lg-5 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <span>Популярные курсы</span>
             </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card bg-info text-white h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Группы</h5>
-                    <p class="card-text display-4">—</p>
-                </div>
-                <div class="card-footer">
-                    <span class="text-white-50">Скоро</span>
+            <div class="card-body p-0">
+                <div style="padding: 0 20px;">
+                    @if (Model.PopularCourses?.Any() == true)
+                    {
+                        @foreach (var c in Model.PopularCourses)
+                        {
+                            <div class="course-item">
+                                <div class="course-indicator"></div>
+                                <div>
+                                    <div class="course-name">@c.Name</div>
+                                    <div class="course-students">@c.StudentsCount студентов</div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="course-item">
+                            <div class="text-muted">Нет данных</div>
+                        </div>
+                    }
                 </div>
             </div>
         </div>

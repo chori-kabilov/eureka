@@ -1,0 +1,87 @@
+@page
+@model RazorWebApp.Pages.Rooms.IndexModel
+@{
+    ViewData["Title"] = "Кабинеты";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-building me-2"></i>Кабинеты</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="bi bi-plus-lg"></i> Добавить
+        </button>
+    </div>
+
+    <div class="row">
+        @if (Model.Rooms?.Any() == true)
+        {
+            @foreach (var room in Model.Rooms)
+            {
+                <div class="col-md-3 mb-3">
+                    <div class="card @(!room.IsActive ? "text-muted bg-light" : "")">
+                        <div class="card-body">
+                            <h5 class="card-title">@room.Name</h5>
+                            @if (!string.IsNullOrEmpty(room.Code))
+                            {
+                                <p class="card-text small text-muted mb-1">Код: @room.Code</p>
+                            }
+                            @if (room.Capacity.HasValue)
+                            {
+                                <p class="card-text small">
+                                    <i class="bi bi-people"></i> Вместимость: @room.Capacity
+                                </p>
+                            }
+                            @if (!room.IsActive)
+                            {
+                                <span class="badge bg-secondary">Неактивен</span>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-building fs-1 d-block mb-2"></i>
+                    Кабинеты не добавлены
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Модальное окно создания -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Добавить кабинет</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <input name="name" class="form-control" placeholder="Кабинет 101" required />
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label class="form-label">Код</label>
+                            <input name="code" class="form-control" placeholder="101" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Вместимость</label>
+                            <input name="capacity" type="number" class="form-control" min="1" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Добавить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

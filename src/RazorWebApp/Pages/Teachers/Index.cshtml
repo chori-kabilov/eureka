@@ -1,108 +1,71 @@
 @page
 @model RazorWebApp.Pages.Teachers.IndexModel
 @{
-    ViewData["Title"] = "Учителя";
+    ViewData["Title"] = "Преподаватели";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-person-workspace me-2"></i>Учителя</h2>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Преподаватели</h1>
+            <p class="page-subtitle">Управление преподавателями</p>
+        </div>
         <a asp-page="/Teachers/Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Добавить учителя
+            <i class="bi bi-plus-lg me-1"></i> Добавить преподавателя
         </a>
     </div>
+</div>
 
-    <!-- Фильтры -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-5">
-                    <input type="text" name="search" class="form-control" 
-                           placeholder="Поиск по имени, телефону или специализации..." value="@Model.Search" />
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-search"></i> Найти
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Таблица -->
-    <div class="card">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>ФИО</th>
-                        <th>Телефон</th>
-                        <th>Специализация</th>
-                        <th>Оплата</th>
-                        <th>Ставка</th>
-                        <th width="100"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Teachers?.Items?.Any() == true)
-                    {
-                        @foreach (var teacher in Model.Teachers.Items)
-                        {
-                            <tr>
-                                <td class="fw-medium">@teacher.FullName</td>
-                                <td>@teacher.Phone</td>
-                                <td>@(teacher.Specialization ?? "-")</td>
-                                <td>
-                                    <span class="badge bg-secondary">@teacher.PaymentTypeName</span>
-                                </td>
-                                <td>
-                                    @if (teacher.HourlyRate.HasValue)
-                                    {
-                                        <text>@teacher.HourlyRate.Value.ToString("N0") сум</text>
-                                    }
-                                    else
-                                    {
-                                        <text>-</text>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-page="/Teachers/Edit" asp-route-id="@teacher.Id" 
-                                           class="btn btn-outline-primary" title="Редактировать">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
+<div class="card">
+    <div class="card-body p-0">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Имя</th>
+                    <th>Телефон</th>
+                    <th>Специализация</th>
+                    <th>Оплата</th>
+                    <th width="100"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Teachers?.Items?.Any() == true)
+                {
+                    @foreach (var t in Model.Teachers.Items)
                     {
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Учителя не найдены
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="stat-icon green" style="width: 32px; height: 32px; font-size: 14px; border-radius: 50%;">
+                                        <i class="bi bi-person-workspace"></i>
+                                    </div>
+                                    <span class="fw-medium">@t.FullName</span>
+                                </div>
+                            </td>
+                            <td>@t.Phone</td>
+                            <td><span class="badge bg-primary">@(t.Specialization ?? "—")</span></td>
+                            <td class="text-muted">@t.PaymentTypeName</td>
+                            <td>
+                                <a asp-page="/Teachers/Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
                             </td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Пагинация -->
-    @if (Model.Teachers?.TotalPages > 1)
-    {
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= Model.Teachers.TotalPages; i++)
-                {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" asp-page="/Teachers/Index" 
-                           asp-route-currentPage="@i" asp-route-search="@Model.Search">@i</a>
-                    </li>
                 }
-            </ul>
-        </nav>
-    }
+                else
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <i class="bi bi-person-workspace"></i>
+                                <h5>Нет преподавателей</h5>
+                                <p>Добавьте первого преподавателя</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

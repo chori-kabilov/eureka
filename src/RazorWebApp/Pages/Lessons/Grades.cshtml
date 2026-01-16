@@ -1,0 +1,96 @@
+@page "{lessonId:guid}"
+@model RazorWebApp.Pages.Lessons.GradesModel
+@{
+    ViewData["Title"] = "Выставление оценок";
+}
+
+<div class="container">
+    @if (Model.Lesson != null)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="bi bi-star me-2"></i>Выставление оценок</h2>
+                <div class="text-muted">
+                    @Model.Lesson.GroupName | @Model.Lesson.Date.ToString("dd.MM.yyyy")
+                </div>
+            </div>
+            <a asp-page="/Groups/Details" asp-route-id="@Model.Lesson.GroupId" asp-route-tab="schedule" 
+               class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Назад
+            </a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+        {
+            <div class="alert alert-success">@Model.SuccessMessage</div>
+        }
+
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> 
+            Система оценок: @Model.GradingSystemName 
+            (от @Model.MinScore до @Model.MaxScore, проходной балл: @Model.PassingScore)
+        </div>
+
+        <div class="card">
+            <div class="card-header">Студенты (@Model.Students.Count)</div>
+            <div class="card-body p-0">
+                <form method="post">
+                    <input type="hidden" name="lessonId" value="@Model.Lesson.Id" />
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Имя</th>
+                                <th width="120">Оценка</th>
+                                <th width="80">Вес</th>
+                                <th>Комментарий</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Students.Count; i++)
+                            {
+                                var student = Model.Students[i];
+                                <tr>
+                                    <td class="fw-medium align-middle">
+                                        @student.Name
+                                        @if (student.IsChild)
+                                        {
+                                            <i class="bi bi-person-fill text-info" title="Ребёнок"></i>
+                                        }
+                                    </td>
+                                    <td>
+                                        <input type="hidden" name="items[@i].StudentId" value="@student.StudentId" />
+                                        <input type="hidden" name="items[@i].ChildId" value="@student.ChildId" />
+                                        <input type="number" name="items[@i].Score" 
+                                               class="form-control form-control-sm text-center"
+                                               min="@Model.MinScore" max="@Model.MaxScore" step="0.1"
+                                               value="@student.Score" placeholder="—" />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="items[@i].Weight" 
+                                               class="form-control form-control-sm text-center"
+                                               min="0.1" max="10" step="0.1"
+                                               value="@(student.Weight > 0 ? student.Weight : 1)" />
+                                    </td>
+                                    <td>
+                                        <input type="text" name="items[@i].Comment" 
+                                               class="form-control form-control-sm"
+                                               value="@student.Comment" placeholder="Комментарий" />
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="card-footer text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i> Сохранить оценки
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning">Занятие не найдено</div>
+    }
+</div>

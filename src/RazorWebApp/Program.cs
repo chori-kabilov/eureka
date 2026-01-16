@@ -24,6 +24,11 @@ builder.Services.AddScoped<TeachersService>();
 builder.Services.AddScoped<ChildrenService>();
 builder.Services.AddScoped<ParentsService>();
 builder.Services.AddScoped<CoursesService>();
+builder.Services.AddScoped<GroupsService>();
+builder.Services.AddScoped<JournalService>();
+builder.Services.AddScoped<ScheduleService>();
+builder.Services.AddScoped<RoomsService>();
+builder.Services.AddScoped<LessonsService>();
 
 // Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

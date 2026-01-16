@@ -6,98 +6,98 @@
     <title>@ViewData["Title"] - EUREKA</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet" />
-    <style>
-        body { background-color: #f8f9fa; }
-        .sidebar { min-height: 100vh; background: linear-gradient(180deg, #4e73df 0%, #224abe 100%); }
-        .sidebar .nav-link { color: rgba(255,255,255,0.8); padding: 1rem; }
-        .sidebar .nav-link:hover { color: #fff; background: rgba(255,255,255,0.1); }
-        .sidebar .nav-link.active { color: #fff; background: rgba(255,255,255,0.2); }
-        .sidebar .nav-link i { margin-right: 0.5rem; }
-        .content { padding: 2rem; }
-        .navbar-brand { font-weight: bold; font-size: 1.5rem; }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="/css/eureka.css" rel="stylesheet" />
 </head>
 <body>
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Sidebar -->
-                <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse">
-                    <div class="position-sticky pt-3">
-                        <a class="navbar-brand text-white d-block text-center py-3" href="/">
-                            <i class="bi bi-mortarboard-fill"></i> EUREKA
-                        </a>
-                        <hr class="bg-white" />
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Dashboard/Index">
-                                    <i class="bi bi-speedometer2"></i> Главная
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Courses/Index">
-                                    <i class="bi bi-book"></i> Курсы
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Students/Index">
-                                    <i class="bi bi-mortarboard"></i> Студенты
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Teachers/Index">
-                                    <i class="bi bi-person-workspace"></i> Учителя
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link disabled">
-                                    <i class="bi bi-collection"></i> Группы
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Children/Index">
-                                    <i class="bi bi-people-fill"></i> Дети
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Parents/Index">
-                                    <i class="bi bi-person-hearts"></i> Родители
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Users/Index">
-                                    <i class="bi bi-people"></i> Пользователи
-                                </a>
-                            </li>
-                        </ul>
-                        <hr class="bg-white" />
-                        <ul class="nav flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" asp-page="/Auth/Logout">
-                                    <i class="bi bi-box-arrow-right"></i> Выход
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+        <!-- Верхняя навигация -->
+        <nav class="top-navbar">
+            <div class="top-navbar-brand">
+                <span class="brand-text">EUREKA</span>
+            </div>
+            <div class="top-navbar-actions">
+                <button class="icon-btn"><i class="bi bi-search"></i></button>
+                <button class="icon-btn"><i class="bi bi-moon"></i></button>
+                <div class="lang-switch">
+                    <span class="flag">🇷🇺</span>
+                    <span>RU</span>
+                </div>
+                <div class="user-avatar">
+                    <i class="bi bi-person"></i>
+                </div>
+            </div>
+        </nav>
+
+        <div class="app-container">
+            <!-- Боковое меню -->
+            <aside class="sidebar">
+                <nav class="sidebar-nav">
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Dashboard") == true ? "active" : "")" 
+                       asp-page="/Dashboard/Index">
+                        <i class="bi bi-house"></i>
+                        <span>Главная</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Students") == true ? "active" : "")" 
+                       asp-page="/Students/Index">
+                        <i class="bi bi-mortarboard"></i>
+                        <span>Студенты</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Teachers") == true ? "active" : "")" 
+                       asp-page="/Teachers/Index">
+                        <i class="bi bi-person-workspace"></i>
+                        <span>Преподаватели</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Courses") == true ? "active" : "")" 
+                       asp-page="/Courses/Index">
+                        <i class="bi bi-book"></i>
+                        <span>Курсы</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Groups") == true ? "active" : "")" 
+                       asp-page="/Groups/Index">
+                        <i class="bi bi-people"></i>
+                        <span>Группы</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Children") == true ? "active" : "")" 
+                       asp-page="/Children/Index">
+                        <i class="bi bi-emoji-smile"></i>
+                        <span>Дети</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Parents") == true ? "active" : "")" 
+                       asp-page="/Parents/Index">
+                        <i class="bi bi-person-hearts"></i>
+                        <span>Родители</span>
+                    </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Rooms") == true ? "active" : "")" 
+                       asp-page="/Rooms/Index">
+                        <i class="bi bi-building"></i>
+                        <span>Кабинеты</span>
+                    </a>
+
+                    <div class="nav-divider"></div>
+
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Users") == true ? "active" : "")" 
+                       asp-page="/Users/Index">
+                        <i class="bi bi-gear"></i>
+                        <span>Пользователи</span>
+                    </a>
                 </nav>
 
-                <!-- Content -->
-                <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 content">
-                    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-                        <h1 class="h2">@ViewData["Title"]</h1>
-                        <div class="text-muted">
-                            <i class="bi bi-person-circle"></i> @User.Identity?.Name
-                        </div>
-                    </div>
-                    @RenderBody()
-                </main>
-            </div>
+                <div class="sidebar-collapse-btn">
+                    <i class="bi bi-chevron-left"></i>
+                </div>
+            </aside>
+
+            <!-- Основной контент -->
+            <main class="main-content">
+                @RenderBody()
+            </main>
         </div>
     }
     else
     {
-        <div class="container">
+        <div class="auth-container">
             @RenderBody()
         </div>
     }
