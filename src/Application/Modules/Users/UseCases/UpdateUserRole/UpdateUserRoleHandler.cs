@@ -8,23 +8,14 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Users.UseCases.UpdateUserRole;
 
 // Handler изменения Admin статуса пользователя
-public class UpdateUserRoleHandler
+public class UpdateUserRoleHandler(IDataContext db, ICurrentUser currentUser)
 {
-    private readonly IDataContext _db;
-    private readonly ICurrentUser _currentUser;
-
-    public UpdateUserRoleHandler(IDataContext db, ICurrentUser currentUser)
-    {
-        _db = db;
-        _currentUser = currentUser;
-    }
-
     public async Task<Result<UserDetailDto>> HandleAsync(
         UpdateUserRoleRequest request,
         CancellationToken ct = default)
     {
         // Найти пользователя с профилями
-        var user = await _db.Users
+        var user = await db.Users
             .Include(u => u.AdminProfile)
             .Include(u => u.StudentProfile)
             .Include(u => u.TeacherProfile)
@@ -35,7 +26,7 @@ public class UpdateUserRoleHandler
             return Result<UserDetailDto>.Failure(Error.NotFound("Пользователь"));
 
         // Защита: нельзя менять себя
-        if (_currentUser.UserId == user.Id)
+        if (currentUser.UserId == user.Id)
             return Result<UserDetailDto>.Failure(
                 new Error("SELF_ROLE_CHANGE", "Нельзя изменить свою роль"));
 
@@ -49,18 +40,18 @@ public class UpdateUserRoleHandler
                 UserId = user.Id,
                 AccessLevel = AdminAccessLevel.Limited
             };
-            _db.Add(adminProfile);
+            db.Add(adminProfile);
         }
         else if (!request.IsAdmin && user.AdminProfile != null)
         {
             // Удалить Admin профиль
-            _db.Remove(user.AdminProfile);
+            db.Remove(user.AdminProfile);
         }
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         // Перезагрузить пользователя
-        var updatedUser = await _db.Users
+        var updatedUser = await db.Users
             .Include(u => u.AdminProfile)
             .Include(u => u.StudentProfile)
             .Include(u => u.TeacherProfile)

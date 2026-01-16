@@ -15,7 +15,7 @@ public class DeleteCourseHandler(IDataContext db)
         if (course is null)
             return Result.Failure(Error.NotFound("Курс"));
 
-        // Soft delete — Remove вызывает логику в AppDbContext.SaveChangesAsync
+        // Soft delete — Remove вызывает логику в DataContext.SaveChangesAsync
         db.Remove(course);
         await db.SaveChangesAsync(ct);
 

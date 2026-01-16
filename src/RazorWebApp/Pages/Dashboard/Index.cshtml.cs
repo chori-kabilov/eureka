@@ -7,21 +7,11 @@ namespace RazorWebApp.Pages.Dashboard;
 [Authorize]
 public class IndexModel : PageModel
 {
-    private readonly StudentsService _studentsService;
-    private readonly TeachersService _teachersService;
-    private readonly CoursesService _coursesService;
-    private readonly GroupsService _groupsService;
+    private readonly DashboardService _dashboardService;
 
-    public IndexModel(
-        StudentsService studentsService,
-        TeachersService teachersService,
-        CoursesService coursesService,
-        GroupsService groupsService)
+    public IndexModel(DashboardService dashboardService)
     {
-        _studentsService = studentsService;
-        _teachersService = teachersService;
-        _coursesService = coursesService;
-        _groupsService = groupsService;
+        _dashboardService = dashboardService;
     }
 
     public int StudentsCount { get; set; }
@@ -33,33 +23,21 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        // Получаем статистику
-        var students = await _studentsService.ListAsync();
-        StudentsCount = students?.TotalCount ?? 0;
-
-        var teachers = await _teachersService.ListAsync();
-        TeachersCount = teachers?.TotalCount ?? 0;
-
-        var courses = await _coursesService.ListAsync();
-        CoursesCount = courses?.Items?.Count() ?? 0;
-
-        var groups = await _groupsService.ListAsync();
-        GroupsCount = groups?.Items?.Count() ?? 0;
-
-        // Заглушки для данных активности
-        RecentEnrollments = new List<RecentEnrollmentItem>
+        // Получаем реальную статистику
+        var stats = await _dashboardService.GetStatsAsync();
+        if (stats != null)
         {
-            new() { StudentName = "Иван Петров", CourseName = "JavaScript для начинающих", TimeAgo = "2 часа назад" },
-            new() { StudentName = "Мария Сидорова", CourseName = "Python разработка", TimeAgo = "4 часа назад" },
-            new() { StudentName = "Создан новый курс", CourseName = "React.js Advanced", TimeAgo = "6 часов назад" }
-        };
+            StudentsCount = stats.StudentsCount;
+            TeachersCount = stats.TeachersCount;
+            CoursesCount = stats.CoursesCount;
+            GroupsCount = stats.GroupsCount;
+        }
 
-        PopularCourses = new List<PopularCourseItem>
-        {
-            new() { Name = "JavaScript для начинающих", StudentsCount = 45 },
-            new() { Name = "Python разработка", StudentsCount = 38 },
-            new() { Name = "React.js Advanced", StudentsCount = 29 }
-        };
+        // Получаем последние записи
+        RecentEnrollments = await _dashboardService.GetRecentEnrollmentsAsync();
+
+        // Получаем популярные курсы
+        PopularCourses = await _dashboardService.GetPopularCoursesAsync();
     }
 }
 

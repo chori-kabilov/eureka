@@ -4,19 +4,12 @@ using RazorWebApp.Pages.Groups;
 namespace RazorWebApp.Services;
 
 // Сервис для работы с расписанием
-public class ScheduleService
+public class ScheduleService(ApiClient apiClient)
 {
-    private readonly ApiClient _apiClient;
-
-    public ScheduleService(ApiClient apiClient)
-    {
-        _apiClient = apiClient;
-    }
-
     // Шаблоны расписания
     public async Task<ApiResponse<List<ScheduleTemplateViewModel>>?> GetTemplatesAsync(Guid groupId)
     {
-        return await _apiClient.GetAsync<ApiResponse<List<ScheduleTemplateViewModel>>>($"/api/v1/schedule/groups/{groupId}/templates");
+        return await apiClient.GetAsync<ApiResponse<List<ScheduleTemplateViewModel>>>($"/api/v1/schedule/groups/{groupId}/templates");
     }
 
     public async Task<bool> CreateTemplateAsync(Guid groupId, DayOfWeek dayOfWeek, TimeSpan startTime, TimeSpan endTime, Guid? roomId)
@@ -29,14 +22,14 @@ public class ScheduleService
             EndTime = endTime.ToString(@"hh\:mm\:ss"),
             RoomId = roomId
         };
-        var result = await _apiClient.PostAsync<object, ApiResponse<object>>($"/api/v1/schedule/groups/{groupId}/templates", request);
+        var result = await apiClient.PostAsync<object, ApiResponse<object>>($"/api/v1/schedule/groups/{groupId}/templates", request);
         return result?.Success == true;
     }
 
     // Занятия
     public async Task<ApiResponse<List<LessonListViewModel>>?> GetLessonsAsync(Guid groupId)
     {
-        return await _apiClient.GetAsync<ApiResponse<List<LessonListViewModel>>>($"/api/v1/lessons?groupId={groupId}&pageSize=50");
+        return await apiClient.GetAsync<ApiResponse<List<LessonListViewModel>>>($"/api/v1/lessons?groupId={groupId}&pageSize=50");
     }
 
     public async Task<int> GenerateLessonsAsync(Guid groupId, DateTime fromDate, DateTime toDate)
@@ -47,8 +40,20 @@ public class ScheduleService
             FromDate = fromDate.ToString("yyyy-MM-dd"),
             ToDate = toDate.ToString("yyyy-MM-dd")
         };
-        var result = await _apiClient.PostAsync<object, GenerateResponse>("/api/v1/lessons/generate", request);
+        var result = await apiClient.PostAsync<object, GenerateResponse>("/api/v1/lessons/generate", request);
         return result?.Generated ?? 0;
+    }
+
+    public async Task<bool> DeleteTemplateAsync(Guid templateId)
+    {
+        return await apiClient.DeleteAsync($"/api/v1/schedule/templates/{templateId}");
+    }
+
+    public async Task<bool> CancelLessonAsync(Guid lessonId, string? reason)
+    {
+        var request = new { Reason = reason };
+        var result = await apiClient.PostAsync<object, ApiResponse<object>>($"/api/v1/lessons/{lessonId}/cancel", request);
+        return result?.Success == true;
     }
 
     private class GenerateResponse

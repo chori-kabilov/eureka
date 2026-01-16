@@ -7,18 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Students.UseCases.GetStudent;
 
 // Handler получения студента по ID
-public class GetStudentHandler
+public class GetStudentHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public GetStudentHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<StudentDetailDto>> HandleAsync(Guid id, CancellationToken ct = default)
     {
-        var student = await _db.Students
+        var student = await db.Students
             .Include(s => s.User)
             .FirstOrDefaultAsync(s => s.Id == id, ct);
 

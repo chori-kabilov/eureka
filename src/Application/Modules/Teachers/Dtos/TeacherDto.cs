@@ -15,19 +15,5 @@ public class TeacherDto
     public DateTime CreatedAt { get; set; }
 }
 
-// Детальный DTO учителя
-public class TeacherDetailDto : TeacherDto
-{
-    public string? Bio { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-}
 
-// DTO для создания учителя
-public class CreateTeacherDto
-{
-    public Guid UserId { get; set; }
-    public string? Specialization { get; set; }
-    public int PaymentType { get; set; }
-    public decimal? HourlyRate { get; set; }
-    public string? Bio { get; set; }
-}
+

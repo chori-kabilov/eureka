@@ -13,9 +13,3 @@ public class UserDto
     public DateTime CreatedAt { get; set; }
 }
 
-// Детальный DTO пользователя
-public class UserDetailDto : UserDto
-{
-    public DateTime? UpdatedAt { get; set; }
-    public bool IsDeleted { get; set; }
-}

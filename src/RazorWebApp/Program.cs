@@ -29,6 +29,8 @@ builder.Services.AddScoped<JournalService>();
 builder.Services.AddScoped<ScheduleService>();
 builder.Services.AddScoped<RoomsService>();
 builder.Services.AddScoped<LessonsService>();
+builder.Services.AddScoped<GradingService>();
+builder.Services.AddScoped<DashboardService>();
 
 // Cookie Authentication
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

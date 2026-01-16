@@ -7,32 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Modules.Teachers.UseCases.CreateTeacher;
 
-// Request для создания учителя
-public class CreateTeacherRequest
-{
-    public Guid UserId { get; set; }
-    public string? Specialization { get; set; }
-    public int PaymentType { get; set; }
-    public decimal? HourlyRate { get; set; }
-    public string? Bio { get; set; }
-}
-
 // Handler создания учителя
-public class CreateTeacherHandler
+public class CreateTeacherHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public CreateTeacherHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<TeacherDetailDto>> HandleAsync(
         CreateTeacherRequest request,
         CancellationToken ct = default)
     {
         // Проверка: пользователь существует
-        var user = await _db.Users
+        var user = await db.Users
             .Include(u => u.TeacherProfile)
             .FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
 
@@ -55,8 +38,8 @@ public class CreateTeacherHandler
             Bio = request.Bio
         };
 
-        _db.Add(teacher);
-        await _db.SaveChangesAsync(ct);
+        db.Add(teacher);
+        await db.SaveChangesAsync(ct);
 
         // Загрузка связей
         teacher.User = user;

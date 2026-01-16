@@ -14,14 +14,6 @@ public class ChildDto
     public DateTime CreatedAt { get; set; }
 }
 
-// Детальный DTO ребёнка
-public class ChildDetailDto : ChildDto
-{
-    public string? Notes { get; set; }
-    public Guid? LinkedStudentId { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-}
-
 // DTO для создания ребёнка
 public class CreateChildDto
 {

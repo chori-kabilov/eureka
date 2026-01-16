@@ -8,20 +8,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Students.UseCases.ListStudents;
 
 // Handler получения списка студентов
-public class ListStudentsHandler
+public class ListStudentsHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public ListStudentsHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<PagedResult<StudentDto>>> HandleAsync(
         ListStudentsRequest request,
         CancellationToken ct = default)
     {
-        var query = _db.Students
+        var query = db.Students
             .Include(s => s.User)
             .AsQueryable();
 

@@ -7,20 +7,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Teachers.UseCases.ListTeachers;
 
 // Handler получения списка учителей
-public class ListTeachersHandler
+public class ListTeachersHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public ListTeachersHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<PagedResult<TeacherDto>>> HandleAsync(
         ListTeachersRequest request,
         CancellationToken ct = default)
     {
-        var query = _db.Teachers
+        var query = db.Teachers
             .Include(t => t.User)
             .AsQueryable();
 

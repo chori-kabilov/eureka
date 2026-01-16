@@ -7,29 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Modules.Students.UseCases.UpdateStudent;
 
-// Request для обновления студента
-public class UpdateStudentRequest
-{
-    public Guid Id { get; set; }
-    public int? Status { get; set; }
-    public string? Notes { get; set; }
-}
-
 // Handler обновления студента
-public class UpdateStudentHandler
+public class UpdateStudentHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public UpdateStudentHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<StudentDetailDto>> HandleAsync(
         UpdateStudentRequest request,
         CancellationToken ct = default)
     {
-        var student = await _db.Students
+        var student = await db.Students
             .Include(s => s.User)
             .FirstOrDefaultAsync(s => s.Id == request.Id, ct);
 
@@ -44,7 +29,7 @@ public class UpdateStudentHandler
 
         student.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         return Result<StudentDetailDto>.Success(StudentMapper.ToDetailDto(student));
     }

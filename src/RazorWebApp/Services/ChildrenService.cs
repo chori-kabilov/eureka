@@ -4,15 +4,8 @@ using RazorWebApp.Models.Children;
 namespace RazorWebApp.Services;
 
 // Сервис для работы с детьми
-public class ChildrenService
+public class ChildrenService(ApiClient apiClient)
 {
-    private readonly ApiClient _apiClient;
-
-    public ChildrenService(ApiClient apiClient)
-    {
-        _apiClient = apiClient;
-    }
-
     public async Task<PagedResponse<ChildViewModel>?> ListAsync(
         string? search = null, 
         Guid? parentId = null,
@@ -25,7 +18,7 @@ public class ChildrenService
         if (parentId.HasValue)
             url += $"&parentId={parentId}";
 
-        return await _apiClient.GetAsync<PagedResponse<ChildViewModel>>(url);
+        return await apiClient.GetAsync<PagedResponse<ChildViewModel>>(url);
     }
 
     public async Task<ApiResponse<ChildViewModel>?> CreateAsync(
@@ -38,22 +31,22 @@ public class ChildrenService
             BirthDate = birthDate,
             Notes = notes
         };
-        return await _apiClient.PostAsync<object, ApiResponse<ChildViewModel>>("/api/v1/children", request);
+        return await apiClient.PostAsync<object, ApiResponse<ChildViewModel>>("/api/v1/children", request);
     }
 
     public async Task<ApiResponse<ChildViewModel>?> GetAsync(Guid id)
     {
-        return await _apiClient.GetAsync<ApiResponse<ChildViewModel>>($"/api/v1/children/{id}");
+        return await apiClient.GetAsync<ApiResponse<ChildViewModel>>($"/api/v1/children/{id}");
     }
 
     public async Task<ApiResponse<ChildViewModel>?> UpdateAsync(Guid id, int status, string? notes)
     {
         var request = new { Status = status, Notes = notes };
-        return await _apiClient.PatchAsync<object, ApiResponse<ChildViewModel>>($"/api/v1/children/{id}", request);
+        return await apiClient.PatchAsync<object, ApiResponse<ChildViewModel>>($"/api/v1/children/{id}", request);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        return await _apiClient.DeleteAsync($"/api/v1/children/{id}");
+        return await apiClient.DeleteAsync($"/api/v1/children/{id}");
     }
 }

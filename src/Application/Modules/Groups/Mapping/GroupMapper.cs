@@ -1,5 +1,8 @@
 using Application.Modules.Groups.Dtos;
-using Domain.Enums;
+using Domain.Groups;
+using Domain.Schedule;
+using Domain.Journal;
+using Domain.Grading;
 using Domain.Groups;
 
 namespace Application.Modules.Groups.Mapping;

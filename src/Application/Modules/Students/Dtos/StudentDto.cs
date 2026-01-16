@@ -14,16 +14,5 @@ public class StudentDto
     public DateTime CreatedAt { get; set; }
 }
 
-// Детальный DTO студента
-public class StudentDetailDto : StudentDto
-{
-    public string? Notes { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-}
 
-// DTO для создания студента
-public class CreateStudentDto
-{
-    public Guid UserId { get; set; }
-    public string? Notes { get; set; }
-}
+

@@ -14,28 +14,14 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class TeachersController : ControllerBase
+public class TeachersController(
+    ListTeachersHandler listHandler,
+    GetTeacherHandler getHandler,
+    CreateTeacherHandler createHandler,
+    UpdateTeacherHandler updateHandler,
+    DeleteTeacherHandler deleteHandler)
+    : ControllerBase
 {
-    private readonly ListTeachersHandler _listHandler;
-    private readonly GetTeacherHandler _getHandler;
-    private readonly CreateTeacherHandler _createHandler;
-    private readonly UpdateTeacherHandler _updateHandler;
-    private readonly DeleteTeacherHandler _deleteHandler;
-
-    public TeachersController(
-        ListTeachersHandler listHandler,
-        GetTeacherHandler getHandler,
-        CreateTeacherHandler createHandler,
-        UpdateTeacherHandler updateHandler,
-        DeleteTeacherHandler deleteHandler)
-    {
-        _listHandler = listHandler;
-        _getHandler = getHandler;
-        _createHandler = createHandler;
-        _updateHandler = updateHandler;
-        _deleteHandler = deleteHandler;
-    }
-
     // GET /api/v1/teachers
     [HttpGet]
     public async Task<IActionResult> List(
@@ -51,7 +37,7 @@ public class TeachersController : ControllerBase
             PageSize = pageSize
         };
 
-        var result = await _listHandler.HandleAsync(request, ct);
+        var result = await listHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
         {
@@ -72,7 +58,7 @@ public class TeachersController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var result = await _getHandler.HandleAsync(id, ct);
+        var result = await getHandler.HandleAsync(id, ct);
         return result.ToActionResult();
     }
 
@@ -82,7 +68,7 @@ public class TeachersController : ControllerBase
         [FromBody] CreateTeacherRequest request,
         CancellationToken ct)
     {
-        var result = await _createHandler.HandleAsync(request, ct);
+        var result = await createHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -94,7 +80,7 @@ public class TeachersController : ControllerBase
         CancellationToken ct)
     {
         request.Id = id;
-        var result = await _updateHandler.HandleAsync(request, ct);
+        var result = await updateHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -102,7 +88,7 @@ public class TeachersController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await _deleteHandler.HandleAsync(id, ct);
+        var result = await deleteHandler.HandleAsync(id, ct);
 
         if (result.IsSuccess)
             return NoContent();

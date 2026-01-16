@@ -1,6 +1,6 @@
-п»їnamespace WebApi.Middleware;
+namespace WebApi.Middleware;
 
-// Extension РґР»СЏ СЂРµРіРёСЃС‚СЂР°С†РёРё middleware
+// Extension для регистрации middleware
 public static class ExceptionMiddlewareExtensions
 {
     public static IApplicationBuilder UseExceptionMiddleware(this IApplicationBuilder app)

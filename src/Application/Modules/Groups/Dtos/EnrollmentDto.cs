@@ -1,4 +1,7 @@
-using Domain.Enums;
+using Domain.Groups;
+using Domain.Schedule;
+using Domain.Journal;
+using Domain.Grading;
 
 namespace Application.Modules.Groups.Dtos;
 

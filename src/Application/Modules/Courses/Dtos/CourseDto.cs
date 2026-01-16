@@ -15,4 +15,3 @@ public class CourseDto
     public DateTime CreatedAt { get; set; }
 }
 
-// DTO для детальной информации о курсе

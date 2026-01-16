@@ -7,18 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Users.UseCases.GetUser;
 
 // Handler получения пользователя по ID
-public class GetUserHandler
+public class GetUserHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public GetUserHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<UserDetailDto>> HandleAsync(Guid userId, CancellationToken ct = default)
     {
-        var user = await _db.Users
+        var user = await db.Users
             .Include(u => u.AdminProfile)
             .Include(u => u.StudentProfile)
             .Include(u => u.TeacherProfile)

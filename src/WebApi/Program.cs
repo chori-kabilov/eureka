@@ -76,6 +76,13 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
+// Seed начальных данных
+using (var scope = app.Services.CreateScope())
+{
+    var seeder = scope.ServiceProvider.GetRequiredService<Application.Modules.GradingSystems.UseCases.SeedGradingSystems.SeedGradingSystemsHandler>();
+    await seeder.HandleAsync();
+}
+
 // Exception handling
 app.UseExceptionMiddleware();
 

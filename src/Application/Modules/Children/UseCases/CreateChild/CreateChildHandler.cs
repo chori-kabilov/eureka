@@ -8,31 +8,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Modules.Children.UseCases.CreateChild;
 
-// Request для создания ребёнка
-public class CreateChildRequest
-{
-    public Guid ParentId { get; set; }
-    public string FullName { get; set; } = string.Empty;
-    public DateTime? BirthDate { get; set; }
-    public string? Notes { get; set; }
-}
-
 // Handler создания ребёнка
-public class CreateChildHandler
+public class CreateChildHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public CreateChildHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<ChildDetailDto>> HandleAsync(
         CreateChildRequest request,
         CancellationToken ct = default)
     {
         // Проверка: родитель существует
-        var parent = await _db.Parents
+        var parent = await db.Parents
             .Include(p => p.User)
             .FirstOrDefaultAsync(p => p.Id == request.ParentId, ct);
 
@@ -57,8 +41,8 @@ public class CreateChildHandler
             Notes = request.Notes
         };
 
-        _db.Add(child);
-        await _db.SaveChangesAsync(ct);
+        db.Add(child);
+        await db.SaveChangesAsync(ct);
 
         // Загрузка связей
         child.Parent = parent;

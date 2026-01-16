@@ -74,6 +74,11 @@
                         <i class="bi bi-building"></i>
                         <span>Кабинеты</span>
                     </a>
+                    <a class="nav-item @(ViewContext.RouteData.Values["page"]?.ToString()?.Contains("Grading") == true ? "active" : "")" 
+                       asp-page="/Grading/Index">
+                        <i class="bi bi-star"></i>
+                        <span>Оценки</span>
+                    </a>
 
                     <div class="nav-divider"></div>
 

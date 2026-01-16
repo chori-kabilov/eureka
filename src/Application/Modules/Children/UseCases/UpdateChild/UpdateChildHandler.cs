@@ -7,29 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Modules.Children.UseCases.UpdateChild;
 
-// Request для обновления ребёнка
-public class UpdateChildRequest
-{
-    public Guid Id { get; set; }
-    public int? Status { get; set; }
-    public string? Notes { get; set; }
-}
-
 // Handler обновления ребёнка
-public class UpdateChildHandler
+public class UpdateChildHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public UpdateChildHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<ChildDetailDto>> HandleAsync(
         UpdateChildRequest request,
         CancellationToken ct = default)
     {
-        var child = await _db.Children
+        var child = await db.Children
             .Include(c => c.Parent)
                 .ThenInclude(p => p!.User)
             .FirstOrDefaultAsync(c => c.Id == request.Id, ct);
@@ -45,7 +30,7 @@ public class UpdateChildHandler
 
         child.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         return Result<ChildDetailDto>.Success(ChildMapper.ToDetailDto(child));
     }

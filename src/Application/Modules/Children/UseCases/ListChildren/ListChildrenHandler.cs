@@ -7,20 +7,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Children.UseCases.ListChildren;
 
 // Handler получения списка детей
-public class ListChildrenHandler
+public class ListChildrenHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public ListChildrenHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<PagedResult<ChildDto>>> HandleAsync(
         ListChildrenRequest request,
         CancellationToken ct = default)
     {
-        var query = _db.Children
+        var query = db.Children
             .Include(c => c.Parent)
                 .ThenInclude(p => p.User)
             .AsQueryable();

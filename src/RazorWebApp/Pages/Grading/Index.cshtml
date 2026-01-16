@@ -1,0 +1,114 @@
+@page
+@model RazorWebApp.Pages.Grading.IndexModel
+@{
+    ViewData["Title"] = "Системы оценок";
+}
+
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Системы оценок</h1>
+            <p class="page-subtitle">Управление системами оценивания</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
+            <i class="bi bi-plus-lg me-1"></i> Создать
+        </button>
+    </div>
+</div>
+
+<div class="row">
+    @if (Model.GradingSystems?.Any() == true)
+    {
+        @foreach (var gs in Model.GradingSystems)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="stat-icon purple" style="width: 40px; height: 40px; font-size: 18px;">
+                                <i class="bi bi-star-fill"></i>
+                            </div>
+                            @if (gs.IsDefault)
+                            {
+                                <span class="badge bg-success">По умолчанию</span>
+                            }
+                        </div>
+                        <h5 class="fw-semibold mb-2">@gs.Name</h5>
+                        <div class="text-muted small mb-2">
+                            <span class="badge bg-secondary">@gs.TypeName</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted small">
+                            <span>Мин: @gs.MinScore</span>
+                            <span>Макс: @gs.MaxScore</span>
+                            <span>Проход: @gs.PassingScore</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-star"></i>
+                        <h5>Нет систем оценок</h5>
+                        <p>Создайте первую систему оценок или запустите Seed данных</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Модальное окно создания -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Создать систему оценок</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <input name="name" class="form-control" placeholder="5-балльная система" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Тип</label>
+                        <select name="type" class="form-select">
+                            <option value="0">Цифровая</option>
+                            <option value="1">Буквенная</option>
+                            <option value="2">Зачёт/Незачёт</option>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-4">
+                            <label class="form-label">Мин. балл</label>
+                            <input name="minScore" type="number" class="form-control" value="1" step="0.1" />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Макс. балл</label>
+                            <input name="maxScore" type="number" class="form-control" value="5" step="0.1" />
+                        </div>
+                        <div class="col-4">
+                            <label class="form-label">Проходной</label>
+                            <input name="passingScore" type="number" class="form-control" value="3" step="0.1" />
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="isDefault" class="form-check-input" value="true" />
+                        <label class="form-check-label">По умолчанию</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

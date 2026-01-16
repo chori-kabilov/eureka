@@ -1,4 +1,9 @@
-using Application.Modules.Journal.UseCases;
+using Application.Modules.Journal.UseCases.GetLessonAttendance;
+using Application.Modules.Journal.UseCases.MarkAttendance;
+using Application.Modules.Journal.UseCases.BulkMarkAttendance;
+using Application.Modules.Journal.UseCases.GetLessonGrades;
+using Application.Modules.Journal.UseCases.SetGrade;
+using Application.Modules.Journal.UseCases.GetGroupJournal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
@@ -8,31 +13,15 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class JournalController : ControllerBase
+public class JournalController(
+    GetLessonAttendanceHandler getAttendanceHandler,
+    MarkAttendanceHandler markHandler,
+    BulkMarkAttendanceHandler bulkMarkHandler,
+    GetLessonGradesHandler getGradesHandler,
+    SetGradeHandler setGradeHandler,
+    GetGroupJournalHandler journalHandler)
+    : ControllerBase
 {
-    private readonly GetLessonAttendanceHandler _getAttendanceHandler;
-    private readonly MarkAttendanceHandler _markHandler;
-    private readonly BulkMarkAttendanceHandler _bulkMarkHandler;
-    private readonly GetLessonGradesHandler _getGradesHandler;
-    private readonly SetGradeHandler _setGradeHandler;
-    private readonly GetGroupJournalHandler _journalHandler;
-
-    public JournalController(
-        GetLessonAttendanceHandler getAttendanceHandler,
-        MarkAttendanceHandler markHandler,
-        BulkMarkAttendanceHandler bulkMarkHandler,
-        GetLessonGradesHandler getGradesHandler,
-        SetGradeHandler setGradeHandler,
-        GetGroupJournalHandler journalHandler)
-    {
-        _getAttendanceHandler = getAttendanceHandler;
-        _markHandler = markHandler;
-        _bulkMarkHandler = bulkMarkHandler;
-        _getGradesHandler = getGradesHandler;
-        _setGradeHandler = setGradeHandler;
-        _journalHandler = journalHandler;
-    }
-
     // Журнал группы
     [HttpGet("groups/{groupId:guid}")]
     public async Task<IActionResult> GetGroupJournal(
@@ -47,7 +36,7 @@ public class JournalController : ControllerBase
             DateFrom = dateFrom,
             DateTo = dateTo
         };
-        var result = await _journalHandler.HandleAsync(request, ct);
+        var result = await journalHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -55,7 +44,7 @@ public class JournalController : ControllerBase
     [HttpGet("lessons/{lessonId:guid}/attendance")]
     public async Task<IActionResult> GetAttendance(Guid lessonId, CancellationToken ct)
     {
-        var result = await _getAttendanceHandler.HandleAsync(lessonId, ct);
+        var result = await getAttendanceHandler.HandleAsync(lessonId, ct);
         return result.ToActionResult();
     }
 
@@ -63,7 +52,7 @@ public class JournalController : ControllerBase
     public async Task<IActionResult> MarkAttendance(Guid lessonId, [FromBody] MarkAttendanceRequest request, CancellationToken ct)
     {
         request.LessonId = lessonId;
-        var result = await _markHandler.HandleAsync(request, ct);
+        var result = await markHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -71,7 +60,7 @@ public class JournalController : ControllerBase
     public async Task<IActionResult> BulkMarkAttendance(Guid lessonId, [FromBody] BulkMarkAttendanceRequest request, CancellationToken ct)
     {
         request.LessonId = lessonId;
-        var result = await _bulkMarkHandler.HandleAsync(request, ct);
+        var result = await bulkMarkHandler.HandleAsync(request, ct);
         if (result.IsSuccess)
             return Ok(new { Marked = result.Value });
         return result.ToActionResult();
@@ -81,7 +70,7 @@ public class JournalController : ControllerBase
     [HttpGet("lessons/{lessonId:guid}/grades")]
     public async Task<IActionResult> GetGrades(Guid lessonId, CancellationToken ct)
     {
-        var result = await _getGradesHandler.HandleAsync(lessonId, ct);
+        var result = await getGradesHandler.HandleAsync(lessonId, ct);
         return result.ToActionResult();
     }
 
@@ -89,7 +78,7 @@ public class JournalController : ControllerBase
     public async Task<IActionResult> SetGrade(Guid lessonId, [FromBody] SetGradeRequest request, CancellationToken ct)
     {
         request.LessonId = lessonId;
-        var result = await _setGradeHandler.HandleAsync(request, ct);
+        var result = await setGradeHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 }

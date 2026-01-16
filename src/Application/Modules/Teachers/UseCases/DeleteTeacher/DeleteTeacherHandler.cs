@@ -5,24 +5,17 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Teachers.UseCases.DeleteTeacher;
 
 // Handler удаления учителя
-public class DeleteTeacherHandler
+public class DeleteTeacherHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public DeleteTeacherHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result> HandleAsync(Guid id, CancellationToken ct = default)
     {
-        var teacher = await _db.Teachers.FirstOrDefaultAsync(t => t.Id == id, ct);
+        var teacher = await db.Teachers.FirstOrDefaultAsync(t => t.Id == id, ct);
 
         if (teacher == null)
             return Result.Failure(Error.NotFound("Учитель"));
 
-        _db.Remove(teacher);
-        await _db.SaveChangesAsync(ct);
+        db.Remove(teacher);
+        await db.SaveChangesAsync(ct);
 
         return Result.Success();
     }

@@ -1,50 +1,36 @@
 using Application.Modules.Groups.Dtos;
-using Application.Modules.Groups.UseCases;
+using Application.Modules.Groups.UseCases.ListGroups;
+using Application.Modules.Groups.UseCases.GetGroup;
+using Application.Modules.Groups.UseCases.CreateGroup;
+using Application.Modules.Groups.UseCases.UpdateGroup;
+using Application.Modules.Groups.UseCases.DeleteGroup;
+using Application.Modules.Groups.UseCases.ListEnrollments;
+using Application.Modules.Groups.UseCases.EnrollStudent;
+using Application.Modules.Groups.UseCases.UnenrollStudent;
+using Application.Modules.Groups.UseCases.TransferStudent;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Contracts.Common;
 using WebApi.Extensions;
-using Domain.Enums;
+using Domain.Groups;
 
 namespace WebApi.Controllers.v1;
 
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class GroupsController : ControllerBase
+public class GroupsController(
+    ListGroupsHandler listHandler,
+    GetGroupHandler getHandler,
+    CreateGroupHandler createHandler,
+    UpdateGroupHandler updateHandler,
+    DeleteGroupHandler deleteHandler,
+    ListEnrollmentsHandler listEnrollmentsHandler,
+    EnrollStudentHandler enrollHandler,
+    UnenrollStudentHandler unenrollHandler,
+    TransferStudentHandler transferHandler)
+    : ControllerBase
 {
-    private readonly ListGroupsHandler _listHandler;
-    private readonly GetGroupHandler _getHandler;
-    private readonly CreateGroupHandler _createHandler;
-    private readonly UpdateGroupHandler _updateHandler;
-    private readonly DeleteGroupHandler _deleteHandler;
-    private readonly ListEnrollmentsHandler _listEnrollmentsHandler;
-    private readonly EnrollStudentHandler _enrollHandler;
-    private readonly UnenrollStudentHandler _unenrollHandler;
-    private readonly TransferStudentHandler _transferHandler;
-
-    public GroupsController(
-        ListGroupsHandler listHandler,
-        GetGroupHandler getHandler,
-        CreateGroupHandler createHandler,
-        UpdateGroupHandler updateHandler,
-        DeleteGroupHandler deleteHandler,
-        ListEnrollmentsHandler listEnrollmentsHandler,
-        EnrollStudentHandler enrollHandler,
-        UnenrollStudentHandler unenrollHandler,
-        TransferStudentHandler transferHandler)
-    {
-        _listHandler = listHandler;
-        _getHandler = getHandler;
-        _createHandler = createHandler;
-        _updateHandler = updateHandler;
-        _deleteHandler = deleteHandler;
-        _listEnrollmentsHandler = listEnrollmentsHandler;
-        _enrollHandler = enrollHandler;
-        _unenrollHandler = unenrollHandler;
-        _transferHandler = transferHandler;
-    }
-
     [HttpGet]
     public async Task<IActionResult> List(
         [FromQuery] string? search,
@@ -65,7 +51,7 @@ public class GroupsController : ControllerBase
             PageSize = pageSize
         };
 
-        var result = await _listHandler.HandleAsync(request, ct);
+        var result = await listHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
         {
@@ -85,14 +71,14 @@ public class GroupsController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var result = await _getHandler.HandleAsync(id, ct);
+        var result = await getHandler.HandleAsync(id, ct);
         return result.ToActionResult();
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateGroupRequest request, CancellationToken ct)
     {
-        var result = await _createHandler.HandleAsync(request, ct);
+        var result = await createHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -100,14 +86,14 @@ public class GroupsController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateGroupRequest request, CancellationToken ct)
     {
         request.Id = id;
-        var result = await _updateHandler.HandleAsync(request, ct);
+        var result = await updateHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await _deleteHandler.HandleAsync(id, ct);
+        var result = await deleteHandler.HandleAsync(id, ct);
         if (result.IsSuccess)
             return NoContent();
         return result.ToActionResult();
@@ -117,7 +103,7 @@ public class GroupsController : ControllerBase
     [HttpGet("{id:guid}/students")]
     public async Task<IActionResult> ListStudents(Guid id, [FromQuery] EnrollmentStatus? status, CancellationToken ct)
     {
-        var result = await _listEnrollmentsHandler.HandleAsync(id, status, ct);
+        var result = await listEnrollmentsHandler.HandleAsync(id, status, ct);
         return result.ToActionResult();
     }
 
@@ -125,14 +111,14 @@ public class GroupsController : ControllerBase
     public async Task<IActionResult> EnrollStudent(Guid id, [FromBody] EnrollStudentRequest request, CancellationToken ct)
     {
         request.GroupId = id;
-        var result = await _enrollHandler.HandleAsync(request, ct);
+        var result = await enrollHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
     [HttpDelete("{groupId:guid}/students/{enrollmentId:guid}")]
     public async Task<IActionResult> UnenrollStudent(Guid groupId, Guid enrollmentId, [FromQuery] EnrollmentStatus status = EnrollmentStatus.Expelled, CancellationToken ct = default)
     {
-        var result = await _unenrollHandler.HandleAsync(enrollmentId, status, ct);
+        var result = await unenrollHandler.HandleAsync(enrollmentId, status, ct);
         if (result.IsSuccess)
             return NoContent();
         return result.ToActionResult();
@@ -142,7 +128,7 @@ public class GroupsController : ControllerBase
     public async Task<IActionResult> TransferStudent(Guid groupId, Guid enrollmentId, [FromBody] TransferStudentRequest request, CancellationToken ct)
     {
         request.EnrollmentId = enrollmentId;
-        var result = await _transferHandler.HandleAsync(request, ct);
+        var result = await transferHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 }

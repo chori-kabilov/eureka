@@ -1,5 +1,8 @@
 using Domain.Common;
-using Domain.Enums;
+using Domain.Groups;
+using Domain.Schedule;
+using Domain.Journal;
+using Domain.Grading;
 using Domain.Schedule;
 using Domain.Students;
 using Domain.Users;

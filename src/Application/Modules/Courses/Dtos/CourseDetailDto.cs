@@ -1,5 +1,6 @@
-п»їnamespace Application.Modules.Courses.Dtos;
+namespace Application.Modules.Courses.Dtos;
 
+// DTO для детальной информации о курсе
 public class CourseDetailDto : CourseDto
 {
     public Guid? CreatedBy { get; set; }

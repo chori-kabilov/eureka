@@ -1,5 +1,10 @@
-using Application.Modules.Schedule.UseCases;
-using Domain.Enums;
+using Application.Modules.Schedule.UseCases.ListLessons;
+using Application.Modules.Schedule.UseCases.CreateLesson;
+using Application.Modules.Schedule.UseCases.GenerateLessons;
+using Application.Modules.Schedule.UseCases.CancelLesson;
+using Application.Modules.Schedule.UseCases.AttendanceForm;
+using Application.Modules.Schedule.UseCases.GradesForm;
+using Domain.Schedule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Contracts.Common;
@@ -10,25 +15,13 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class LessonsController : ControllerBase
+public class LessonsController(
+    ListLessonsHandler listHandler,
+    CreateLessonHandler createHandler,
+    GenerateLessonsHandler generateHandler,
+    CancelLessonHandler cancelHandler)
+    : ControllerBase
 {
-    private readonly ListLessonsHandler _listHandler;
-    private readonly CreateLessonHandler _createHandler;
-    private readonly GenerateLessonsHandler _generateHandler;
-    private readonly CancelLessonHandler _cancelHandler;
-
-    public LessonsController(
-        ListLessonsHandler listHandler,
-        CreateLessonHandler createHandler,
-        GenerateLessonsHandler generateHandler,
-        CancelLessonHandler cancelHandler)
-    {
-        _listHandler = listHandler;
-        _createHandler = createHandler;
-        _generateHandler = generateHandler;
-        _cancelHandler = cancelHandler;
-    }
-
     [HttpGet]
     public async Task<IActionResult> List(
         [FromQuery] Guid? groupId,
@@ -51,7 +44,7 @@ public class LessonsController : ControllerBase
             PageSize = pageSize
         };
 
-        var result = await _listHandler.HandleAsync(request, ct);
+        var result = await listHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
         {
@@ -71,14 +64,14 @@ public class LessonsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateLessonRequest request, CancellationToken ct)
     {
-        var result = await _createHandler.HandleAsync(request, ct);
+        var result = await createHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
     [HttpPost("generate")]
     public async Task<IActionResult> Generate([FromBody] GenerateLessonsRequest request, CancellationToken ct)
     {
-        var result = await _generateHandler.HandleAsync(request, ct);
+        var result = await generateHandler.HandleAsync(request, ct);
         if (result.IsSuccess)
             return Ok(new { Generated = result.Value });
         return result.ToActionResult();
@@ -87,7 +80,7 @@ public class LessonsController : ControllerBase
     [HttpPost("{id:guid}/cancel")]
     public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelRequest? request, CancellationToken ct)
     {
-        var result = await _cancelHandler.HandleAsync(id, request?.Reason, ct);
+        var result = await cancelHandler.HandleAsync(id, request?.Reason, ct);
         if (result.IsSuccess)
             return NoContent();
         return result.ToActionResult();
@@ -106,9 +99,4 @@ public class LessonsController : ControllerBase
         var result = await handler.HandleAsync(id, ct);
         return result.ToActionResult();
     }
-}
-
-public class CancelRequest
-{
-    public string? Reason { get; set; }
 }

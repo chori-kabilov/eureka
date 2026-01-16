@@ -4,15 +4,8 @@ using RazorWebApp.Pages.Groups;
 namespace RazorWebApp.Services;
 
 // Сервис для работы с журналом
-public class JournalService
+public class JournalService(ApiClient apiClient)
 {
-    private readonly ApiClient _apiClient;
-
-    public JournalService(ApiClient apiClient)
-    {
-        _apiClient = apiClient;
-    }
-
     public async Task<ApiResponse<List<JournalRowViewModel>>?> GetGroupJournalAsync(
         Guid groupId, DateTime? dateFrom = null, DateTime? dateTo = null)
     {
@@ -23,6 +16,6 @@ public class JournalService
         if (dateTo.HasValue)
             url += $"{(dateFrom.HasValue ? "&" : "?")}dateTo={dateTo.Value:yyyy-MM-dd}";
 
-        return await _apiClient.GetAsync<ApiResponse<List<JournalRowViewModel>>>(url);
+        return await apiClient.GetAsync<ApiResponse<List<JournalRowViewModel>>>(url);
     }
 }

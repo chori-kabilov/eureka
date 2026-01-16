@@ -4,15 +4,8 @@ using RazorWebApp.Models.Groups;
 namespace RazorWebApp.Services;
 
 // Сервис для работы с группами
-public class GroupsService
+public class GroupsService(ApiClient apiClient)
 {
-    private readonly ApiClient _apiClient;
-
-    public GroupsService(ApiClient apiClient)
-    {
-        _apiClient = apiClient;
-    }
-
     public async Task<PagedResponse<GroupViewModel>?> ListAsync(
         string? search = null,
         Guid? courseId = null,
@@ -28,12 +21,12 @@ public class GroupsService
         if (status.HasValue)
             url += $"&status={status}";
 
-        return await _apiClient.GetAsync<PagedResponse<GroupViewModel>>(url);
+        return await apiClient.GetAsync<PagedResponse<GroupViewModel>>(url);
     }
 
     public async Task<ApiResponse<GroupViewModel>?> GetAsync(Guid id)
     {
-        return await _apiClient.GetAsync<ApiResponse<GroupViewModel>>($"/api/v1/groups/{id}");
+        return await apiClient.GetAsync<ApiResponse<GroupViewModel>>($"/api/v1/groups/{id}");
     }
 
     public async Task<ApiResponse<GroupViewModel>?> CreateAsync(
@@ -52,7 +45,7 @@ public class GroupsService
             MaxStudents = maxStudents,
             Notes = notes
         };
-        return await _apiClient.PostAsync<object, ApiResponse<GroupViewModel>>("/api/v1/groups", request);
+        return await apiClient.PostAsync<object, ApiResponse<GroupViewModel>>("/api/v1/groups", request);
     }
 
     public async Task<ApiResponse<GroupViewModel>?> UpdateAsync(
@@ -71,28 +64,28 @@ public class GroupsService
             Status = status,
             Notes = notes
         };
-        return await _apiClient.PutAsync<object, ApiResponse<GroupViewModel>>($"/api/v1/groups/{id}", request);
+        return await apiClient.PutAsync<object, ApiResponse<GroupViewModel>>($"/api/v1/groups/{id}", request);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        return await _apiClient.DeleteAsync($"/api/v1/groups/{id}");
+        return await apiClient.DeleteAsync($"/api/v1/groups/{id}");
     }
 
     // Студенты группы
     public async Task<ApiResponse<List<EnrollmentViewModel>>?> GetStudentsAsync(Guid groupId)
     {
-        return await _apiClient.GetAsync<ApiResponse<List<EnrollmentViewModel>>>($"/api/v1/groups/{groupId}/students");
+        return await apiClient.GetAsync<ApiResponse<List<EnrollmentViewModel>>>($"/api/v1/groups/{groupId}/students");
     }
 
     public async Task<ApiResponse<EnrollmentViewModel>?> EnrollAsync(Guid groupId, Guid? studentId, Guid? childId)
     {
         var request = new { StudentId = studentId, ChildId = childId };
-        return await _apiClient.PostAsync<object, ApiResponse<EnrollmentViewModel>>($"/api/v1/groups/{groupId}/students", request);
+        return await apiClient.PostAsync<object, ApiResponse<EnrollmentViewModel>>($"/api/v1/groups/{groupId}/students", request);
     }
 
     public async Task<bool> UnenrollAsync(Guid groupId, Guid enrollmentId)
     {
-        return await _apiClient.DeleteAsync($"/api/v1/groups/{groupId}/students/{enrollmentId}");
+        return await apiClient.DeleteAsync($"/api/v1/groups/{groupId}/students/{enrollmentId}");
     }
 }

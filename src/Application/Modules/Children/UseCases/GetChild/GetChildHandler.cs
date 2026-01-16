@@ -7,18 +7,11 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Children.UseCases.GetChild;
 
 // Handler получения ребёнка по ID
-public class GetChildHandler
+public class GetChildHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public GetChildHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<ChildDetailDto>> HandleAsync(Guid id, CancellationToken ct = default)
     {
-        var child = await _db.Children
+        var child = await db.Children
             .Include(c => c.Parent)
                 .ThenInclude(p => p!.User)
             .FirstOrDefaultAsync(c => c.Id == id, ct);

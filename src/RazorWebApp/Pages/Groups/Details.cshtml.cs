@@ -127,6 +127,18 @@ public class DetailsModel : PageModel
         var result = await _scheduleService.GenerateLessonsAsync(id, fromDate, toDate);
         return RedirectToPage("/Groups/Details", new { id, tab = "schedule", generated = result });
     }
+
+    public async Task<IActionResult> OnPostDeleteTemplateAsync(Guid id, Guid templateId)
+    {
+        await _scheduleService.DeleteTemplateAsync(templateId);
+        return RedirectToPage("/Groups/Details", new { id, tab = "schedule" });
+    }
+
+    public async Task<IActionResult> OnPostCancelLessonAsync(Guid id, Guid lessonId, string? reason)
+    {
+        await _scheduleService.CancelLessonAsync(lessonId, reason);
+        return RedirectToPage("/Groups/Details", new { id, tab = "schedule" });
+    }
 }
 
 // Select Items

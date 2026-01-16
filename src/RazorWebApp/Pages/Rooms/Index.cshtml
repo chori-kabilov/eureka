@@ -4,59 +4,89 @@
     ViewData["Title"] = "Кабинеты";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-building me-2"></i>Кабинеты</h2>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Кабинеты</h1>
+            <p class="page-subtitle">Управление кабинетами и аудиториями</p>
+        </div>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">
-            <i class="bi bi-plus-lg"></i> Добавить
+            <i class="bi bi-plus-lg me-1"></i> Добавить
         </button>
     </div>
+</div>
 
-    <div class="row">
-        @if (Model.Rooms?.Any() == true)
+<div class="row">
+    @if (Model.Rooms?.Any() == true)
+    {
+        @foreach (var room in Model.Rooms)
         {
-            @foreach (var room in Model.Rooms)
-            {
-                <div class="col-md-3 mb-3">
-                    <div class="card @(!room.IsActive ? "text-muted bg-light" : "")">
-                        <div class="card-body">
-                            <h5 class="card-title">@room.Name</h5>
-                            @if (!string.IsNullOrEmpty(room.Code))
-                            {
-                                <p class="card-text small text-muted mb-1">Код: @room.Code</p>
-                            }
-                            @if (room.Capacity.HasValue)
-                            {
-                                <p class="card-text small">
-                                    <i class="bi bi-people"></i> Вместимость: @room.Capacity
-                                </p>
-                            }
-                            @if (!room.IsActive)
-                            {
-                                <span class="badge bg-secondary">Неактивен</span>
-                            }
+            <div class="col-md-4 col-lg-3 mb-4">
+                <div class="card h-100 @(!room.IsActive ? "opacity-50" : "")">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <div class="stat-icon blue" style="width: 40px; height: 40px; font-size: 18px;">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            <span class="badge @(room.IsActive ? "bg-success" : "bg-secondary")">
+                                @(room.IsActive ? "Активен" : "Неактивен")
+                            </span>
+                        </div>
+                        <h5 class="fw-semibold">@room.Name</h5>
+                        @if (!string.IsNullOrEmpty(room.Code))
+                        {
+                            <p class="text-muted small mb-1">Код: @room.Code</p>
+                        }
+                        @if (room.Capacity.HasValue)
+                        {
+                            <p class="text-muted small mb-3">
+                                <i class="bi bi-people me-1"></i> Вместимость: @room.Capacity
+                            </p>
+                        }
+                        <div class="btn-group btn-group-sm w-100">
+                            <button class="btn btn-outline-primary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#editModal"
+                                    data-id="@room.Id"
+                                    data-name="@room.Name"
+                                    data-code="@room.Code"
+                                    data-capacity="@room.Capacity"
+                                    data-active="@room.IsActive.ToString().ToLower()">
+                                <i class="bi bi-pencil"></i> Редактировать
+                            </button>
+                            <form method="post" asp-page-handler="Delete" style="display: inline;">
+                                <input type="hidden" name="id" value="@room.Id" />
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Удалить кабинет?')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
-            }
-        }
-        else
-        {
-            <div class="col-12">
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-building fs-1 d-block mb-2"></i>
-                    Кабинеты не добавлены
-                </div>
             </div>
         }
-    </div>
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-building"></i>
+                        <h5>Нет кабинетов</h5>
+                        <p>Добавьте первый кабинет</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 <!-- Модальное окно создания -->
 <div class="modal fade" id="createModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form method="post">
+            <form method="post" asp-page-handler="Create">
                 <div class="modal-header">
                     <h5 class="modal-title">Добавить кабинет</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -85,3 +115,55 @@
         </div>
     </div>
 </div>
+
+<!-- Модальное окно редактирования -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="Update">
+                <input type="hidden" name="id" id="editId" />
+                <div class="modal-header">
+                    <h5 class="modal-title">Редактировать кабинет</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Название</label>
+                        <input name="name" id="editName" class="form-control" required />
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label">Код</label>
+                            <input name="code" id="editCode" class="form-control" />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Вместимость</label>
+                            <input name="capacity" id="editCapacity" type="number" class="form-control" min="1" />
+                        </div>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" name="isActive" id="editIsActive" class="form-check-input" value="true" />
+                        <label class="form-check-label" for="editIsActive">Активен</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('editModal').addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        document.getElementById('editId').value = button.getAttribute('data-id');
+        document.getElementById('editName').value = button.getAttribute('data-name');
+        document.getElementById('editCode').value = button.getAttribute('data-code') || '';
+        document.getElementById('editCapacity').value = button.getAttribute('data-capacity') || '';
+        document.getElementById('editIsActive').checked = button.getAttribute('data-active') === 'true';
+    });
+</script>
+}

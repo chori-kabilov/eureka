@@ -7,31 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Modules.Teachers.UseCases.UpdateTeacher;
 
-// Request для обновления учителя
-public class UpdateTeacherRequest
-{
-    public Guid Id { get; set; }
-    public string? Specialization { get; set; }
-    public int? PaymentType { get; set; }
-    public decimal? HourlyRate { get; set; }
-    public string? Bio { get; set; }
-}
-
 // Handler обновления учителя
-public class UpdateTeacherHandler
+public class UpdateTeacherHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public UpdateTeacherHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<TeacherDetailDto>> HandleAsync(
         UpdateTeacherRequest request,
         CancellationToken ct = default)
     {
-        var teacher = await _db.Teachers
+        var teacher = await db.Teachers
             .Include(t => t.User)
             .FirstOrDefaultAsync(t => t.Id == request.Id, ct);
 
@@ -52,7 +35,7 @@ public class UpdateTeacherHandler
 
         teacher.UpdatedAt = DateTime.UtcNow;
 
-        await _db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(ct);
 
         return Result<TeacherDetailDto>.Success(TeacherMapper.ToDetailDto(teacher));
     }

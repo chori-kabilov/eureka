@@ -14,28 +14,14 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class ChildrenController : ControllerBase
+public class ChildrenController(
+    ListChildrenHandler listHandler,
+    GetChildHandler getHandler,
+    CreateChildHandler createHandler,
+    UpdateChildHandler updateHandler,
+    DeleteChildHandler deleteHandler)
+    : ControllerBase
 {
-    private readonly ListChildrenHandler _listHandler;
-    private readonly GetChildHandler _getHandler;
-    private readonly CreateChildHandler _createHandler;
-    private readonly UpdateChildHandler _updateHandler;
-    private readonly DeleteChildHandler _deleteHandler;
-
-    public ChildrenController(
-        ListChildrenHandler listHandler,
-        GetChildHandler getHandler,
-        CreateChildHandler createHandler,
-        UpdateChildHandler updateHandler,
-        DeleteChildHandler deleteHandler)
-    {
-        _listHandler = listHandler;
-        _getHandler = getHandler;
-        _createHandler = createHandler;
-        _updateHandler = updateHandler;
-        _deleteHandler = deleteHandler;
-    }
-
     // GET /api/v1/children
     [HttpGet]
     public async Task<IActionResult> List(
@@ -53,7 +39,7 @@ public class ChildrenController : ControllerBase
             PageSize = pageSize
         };
 
-        var result = await _listHandler.HandleAsync(request, ct);
+        var result = await listHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
         {
@@ -74,7 +60,7 @@ public class ChildrenController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var result = await _getHandler.HandleAsync(id, ct);
+        var result = await getHandler.HandleAsync(id, ct);
         return result.ToActionResult();
     }
 
@@ -84,7 +70,7 @@ public class ChildrenController : ControllerBase
         [FromBody] CreateChildRequest request,
         CancellationToken ct)
     {
-        var result = await _createHandler.HandleAsync(request, ct);
+        var result = await createHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -96,7 +82,7 @@ public class ChildrenController : ControllerBase
         CancellationToken ct)
     {
         request.Id = id;
-        var result = await _updateHandler.HandleAsync(request, ct);
+        var result = await updateHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -104,7 +90,7 @@ public class ChildrenController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await _deleteHandler.HandleAsync(id, ct);
+        var result = await deleteHandler.HandleAsync(id, ct);
 
         if (result.IsSuccess)
             return NoContent();

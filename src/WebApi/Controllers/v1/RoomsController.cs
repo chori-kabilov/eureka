@@ -1,4 +1,7 @@
-using Application.Modules.Rooms.UseCases;
+using Application.Modules.Rooms.UseCases.ListRooms;
+using Application.Modules.Rooms.UseCases.CreateRoom;
+using Application.Modules.Rooms.UseCases.UpdateRoom;
+using Application.Modules.Rooms.UseCases.DeleteRoom;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Contracts.Common;
@@ -9,36 +12,24 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class RoomsController : ControllerBase
+public class RoomsController(
+    ListRoomsHandler listHandler,
+    CreateRoomHandler createHandler,
+    UpdateRoomHandler updateHandler,
+    DeleteRoomHandler deleteHandler)
+    : ControllerBase
 {
-    private readonly ListRoomsHandler _listHandler;
-    private readonly CreateRoomHandler _createHandler;
-    private readonly UpdateRoomHandler _updateHandler;
-    private readonly DeleteRoomHandler _deleteHandler;
-
-    public RoomsController(
-        ListRoomsHandler listHandler,
-        CreateRoomHandler createHandler,
-        UpdateRoomHandler updateHandler,
-        DeleteRoomHandler deleteHandler)
-    {
-        _listHandler = listHandler;
-        _createHandler = createHandler;
-        _updateHandler = updateHandler;
-        _deleteHandler = deleteHandler;
-    }
-
     [HttpGet]
     public async Task<IActionResult> List([FromQuery] bool? activeOnly = true, CancellationToken ct = default)
     {
-        var result = await _listHandler.HandleAsync(activeOnly, ct);
+        var result = await listHandler.HandleAsync(activeOnly, ct);
         return result.ToActionResult();
     }
 
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateRoomRequest request, CancellationToken ct)
     {
-        var result = await _createHandler.HandleAsync(request, ct);
+        var result = await createHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -46,14 +37,14 @@ public class RoomsController : ControllerBase
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateRoomRequest request, CancellationToken ct)
     {
         request.Id = id;
-        var result = await _updateHandler.HandleAsync(request, ct);
+        var result = await updateHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await _deleteHandler.HandleAsync(id, ct);
+        var result = await deleteHandler.HandleAsync(id, ct);
         if (result.IsSuccess)
             return NoContent();
         return result.ToActionResult();

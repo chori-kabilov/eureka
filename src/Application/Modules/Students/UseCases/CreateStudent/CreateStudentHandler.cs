@@ -15,21 +15,14 @@ public class CreateStudentRequest
 }
 
 // Handler создания студента
-public class CreateStudentHandler
+public class CreateStudentHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public CreateStudentHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<StudentDetailDto>> HandleAsync(
         CreateStudentRequest request,
         CancellationToken ct = default)
     {
         // Проверка: пользователь существует
-        var user = await _db.Users
+        var user = await db.Users
             .Include(u => u.StudentProfile)
             .FirstOrDefaultAsync(u => u.Id == request.UserId, ct);
 
@@ -51,8 +44,8 @@ public class CreateStudentHandler
             Notes = request.Notes
         };
 
-        _db.Add(student);
-        await _db.SaveChangesAsync(ct);
+        db.Add(student);
+        await db.SaveChangesAsync(ct);
 
         // Загрузка связей
         student.User = user;

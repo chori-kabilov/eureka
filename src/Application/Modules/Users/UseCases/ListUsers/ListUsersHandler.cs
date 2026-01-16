@@ -7,20 +7,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Application.Modules.Users.UseCases.ListUsers;
 
 // Handler получения списка пользователей
-public class ListUsersHandler
+public class ListUsersHandler(IDataContext db)
 {
-    private readonly IDataContext _db;
-
-    public ListUsersHandler(IDataContext db)
-    {
-        _db = db;
-    }
-
     public async Task<Result<PagedResult<UserDto>>> HandleAsync(
         ListUsersRequest request,
         CancellationToken ct = default)
     {
-        var query = _db.Users
+        var query = db.Users
             .Include(u => u.AdminProfile)
             .Include(u => u.StudentProfile)
             .Include(u => u.TeacherProfile)

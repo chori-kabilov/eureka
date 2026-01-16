@@ -1,20 +1,13 @@
 namespace RazorWebApp.Services;
 
 // Базовый клиент для вызова API
-public class ApiClient
+public class ApiClient(HttpClient httpClient)
 {
-    private readonly HttpClient _httpClient;
-
-    public ApiClient(HttpClient httpClient)
-    {
-        _httpClient = httpClient;
-    }
-
     public async Task<T?> GetAsync<T>(string url)
     {
         try
         {
-            var response = await _httpClient.GetAsync(url);
+            var response = await httpClient.GetAsync(url);
             if (!response.IsSuccessStatusCode)
                 return default;
             return await response.Content.ReadFromJsonAsync<T>();
@@ -29,7 +22,7 @@ public class ApiClient
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync(url, data);
+            var response = await httpClient.PostAsJsonAsync(url, data);
             return await response.Content.ReadFromJsonAsync<TResponse>();
         }
         catch
@@ -42,7 +35,7 @@ public class ApiClient
     {
         try
         {
-            var response = await _httpClient.PutAsJsonAsync(url, data);
+            var response = await httpClient.PutAsJsonAsync(url, data);
             return await response.Content.ReadFromJsonAsync<TResponse>();
         }
         catch
@@ -55,7 +48,7 @@ public class ApiClient
     {
         try
         {
-            var response = await _httpClient.PatchAsJsonAsync(url, data);
+            var response = await httpClient.PatchAsJsonAsync(url, data);
             return await response.Content.ReadFromJsonAsync<TResponse>();
         }
         catch
@@ -68,7 +61,7 @@ public class ApiClient
     {
         try
         {
-            var response = await _httpClient.DeleteAsync(url);
+            var response = await httpClient.DeleteAsync(url);
             return response.IsSuccessStatusCode;
         }
         catch

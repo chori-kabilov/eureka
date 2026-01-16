@@ -14,25 +14,13 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class UsersController : ControllerBase
+public class UsersController(
+    ListUsersHandler listHandler,
+    GetUserHandler getHandler,
+    UpdateUserRoleHandler updateRoleHandler,
+    DeleteUserHandler deleteHandler)
+    : ControllerBase
 {
-    private readonly ListUsersHandler _listHandler;
-    private readonly GetUserHandler _getHandler;
-    private readonly UpdateUserRoleHandler _updateRoleHandler;
-    private readonly DeleteUserHandler _deleteHandler;
-
-    public UsersController(
-        ListUsersHandler listHandler,
-        GetUserHandler getHandler,
-        UpdateUserRoleHandler updateRoleHandler,
-        DeleteUserHandler deleteHandler)
-    {
-        _listHandler = listHandler;
-        _getHandler = getHandler;
-        _updateRoleHandler = updateRoleHandler;
-        _deleteHandler = deleteHandler;
-    }
-
     // GET /api/v1/users
     [HttpGet]
     public async Task<IActionResult> List(
@@ -50,7 +38,7 @@ public class UsersController : ControllerBase
             PageSize = pageSize
         };
 
-        var result = await _listHandler.HandleAsync(request, ct);
+        var result = await listHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
         {
@@ -71,7 +59,7 @@ public class UsersController : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> Get(Guid id, CancellationToken ct)
     {
-        var result = await _getHandler.HandleAsync(id, ct);
+        var result = await getHandler.HandleAsync(id, ct);
         return result.ToActionResult();
     }
 
@@ -88,7 +76,7 @@ public class UsersController : ControllerBase
             IsAdmin = apiRequest.IsAdmin
         };
 
-        var result = await _updateRoleHandler.HandleAsync(request, ct);
+        var result = await updateRoleHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -96,7 +84,7 @@ public class UsersController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await _deleteHandler.HandleAsync(id, ct);
+        var result = await deleteHandler.HandleAsync(id, ct);
 
         if (result.IsSuccess)
             return NoContent();

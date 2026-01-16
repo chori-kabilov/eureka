@@ -12,22 +12,12 @@ namespace WebApi.Controllers.v1;
 [ApiController]
 [Route("api/v1/[controller]")]
 [Authorize(Roles = "Admin")]
-public class ParentsController : ControllerBase
+public class ParentsController(
+    ListParentsHandler listHandler,
+    CreateParentHandler createHandler,
+    DeleteParentHandler deleteHandler)
+    : ControllerBase
 {
-    private readonly ListParentsHandler _listHandler;
-    private readonly CreateParentHandler _createHandler;
-    private readonly DeleteParentHandler _deleteHandler;
-
-    public ParentsController(
-        ListParentsHandler listHandler,
-        CreateParentHandler createHandler,
-        DeleteParentHandler deleteHandler)
-    {
-        _listHandler = listHandler;
-        _createHandler = createHandler;
-        _deleteHandler = deleteHandler;
-    }
-
     // GET /api/v1/parents
     [HttpGet]
     public async Task<IActionResult> List(
@@ -43,7 +33,7 @@ public class ParentsController : ControllerBase
             PageSize = pageSize
         };
 
-        var result = await _listHandler.HandleAsync(request, ct);
+        var result = await listHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
         {
@@ -66,7 +56,7 @@ public class ParentsController : ControllerBase
         [FromBody] CreateParentRequest request,
         CancellationToken ct)
     {
-        var result = await _createHandler.HandleAsync(request, ct);
+        var result = await createHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }
 
@@ -74,7 +64,7 @@ public class ParentsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
-        var result = await _deleteHandler.HandleAsync(id, ct);
+        var result = await deleteHandler.HandleAsync(id, ct);
 
         if (result.IsSuccess)
             return NoContent();

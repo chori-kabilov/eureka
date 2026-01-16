@@ -1,4 +1,7 @@
-using Domain.Enums;
+using Domain.Groups;
+using Domain.Schedule;
+using Domain.Journal;
+using Domain.Grading;
 
 namespace Application.Modules.Groups.Dtos;
 
@@ -25,18 +28,3 @@ public class GroupDto
     public DateTime CreatedAt { get; set; }
 }
 
-// Детальный DTO группы
-public class GroupDetailDto : GroupDto
-{
-    public Guid? DefaultTeacherId { get; set; }
-    public string? DefaultTeacherName { get; set; }
-    
-    public Guid? DefaultRoomId { get; set; }
-    public string? DefaultRoomName { get; set; }
-    
-    public Guid? GradingSystemId { get; set; }
-    public string? GradingSystemName { get; set; }
-    
-    public string? Notes { get; set; }
-    public DateTime? UpdatedAt { get; set; }
-}
