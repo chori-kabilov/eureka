@@ -39,7 +39,6 @@ public class CreateStudentHandler(IDataContext db)
         {
             Id = Guid.NewGuid(),
             UserId = request.UserId,
-            Balance = 0,
             Status = StudentStatus.Active,
             Notes = request.Notes
         };

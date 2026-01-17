@@ -13,9 +13,6 @@ public class StudentConfiguration : IEntityTypeConfiguration<Student>
 
         builder.HasKey(e => e.Id);
 
-        builder.Property(e => e.Balance)
-            .HasPrecision(18, 2);
-
         builder.HasOne(e => e.User)
             .WithOne(u => u.StudentProfile)
             .HasForeignKey<Student>(e => e.UserId)

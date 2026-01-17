@@ -37,8 +37,8 @@ public class ScheduleService(ApiClient apiClient)
         var request = new
         {
             GroupId = groupId,
-            FromDate = fromDate.ToString("yyyy-MM-dd"),
-            ToDate = toDate.ToString("yyyy-MM-dd")
+            FromDate = fromDate,
+            ToDate = toDate
         };
         var result = await apiClient.PostAsync<object, GenerateResponse>("/api/v1/lessons/generate", request);
         return result?.Generated ?? 0;

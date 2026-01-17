@@ -16,56 +16,109 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body p-0">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Имя</th>
-                    <th>Телефон</th>
-                    <th>Специализация</th>
-                    <th>Оплата</th>
-                    <th width="100"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Teachers?.Items?.Any() == true)
-                {
-                    @foreach (var t in Model.Teachers.Items)
-                    {
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="stat-icon green" style="width: 32px; height: 32px; font-size: 14px; border-radius: 50%;">
-                                        <i class="bi bi-person-workspace"></i>
-                                    </div>
-                                    <span class="fw-medium">@t.FullName</span>
-                                </div>
-                            </td>
-                            <td>@t.Phone</td>
-                            <td><span class="badge bg-primary">@(t.Specialization ?? "—")</span></td>
-                            <td class="text-muted">@t.PaymentTypeName</td>
-                            <td>
-                                <a asp-page="/Teachers/Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="5">
-                            <div class="empty-state">
-                                <i class="bi bi-person-workspace"></i>
-                                <h5>Нет преподавателей</h5>
-                                <p>Добавьте первого преподавателя</p>
-                            </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Поиск</label>
+                <input type="text" name="search" class="form-control" placeholder="Имя или телефон..." value="@Model.Search" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i> Искать
+                </button>
+            </div>
+        </form>
     </div>
 </div>
+
+<!-- Карточки преподавателей -->
+<div class="row">
+    @if (Model.Teachers?.Items?.Any() == true)
+    {
+        @foreach (var t in Model.Teachers.Items)
+        {
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="stat-icon green" style="width: 48px; height: 48px; font-size: 20px; border-radius: 50%;">
+                                <i class="bi bi-person-workspace"></i>
+                            </div>
+                            <span class="badge bg-primary">@(t.Specialization ?? "—")</span>
+                        </div>
+                        <h5 class="fw-semibold mb-1">@t.FullName</h5>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-telephone me-1"></i>@t.Phone
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted small">
+                                <i class="bi bi-cash me-1"></i>@t.PaymentTypeName
+                            </div>
+                            @if (t.HourlyRate > 0)
+                            {
+                                <span class="fw-semibold text-success">@t.HourlyRate?.ToString("N0") ₸</span>
+                            }
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a asp-page="/Teachers/Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary flex-fill">
+                                <i class="bi bi-pencil me-1"></i> Редактировать
+                            </a>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@t.Id"
+                                  onsubmit="return confirm('Удалить преподавателя @t.FullName?');" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-person-workspace"></i>
+                        <h5>Нет преподавателей</h5>
+                        <p>Добавьте первого преподавателя</p>
+                        <a asp-page="/Teachers/Create" class="btn btn-primary mt-2">
+                            <i class="bi bi-plus-lg me-1"></i> Добавить преподавателя
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if ((Model.Teachers?.TotalPages ?? 0) > 1 || Model.PageSize != 12)
+{
+    <nav class="mt-4">
+        <div class="d-flex justify-content-center align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Показывать:</span>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='?currentPage=1&search=@Model.Search&pageSize=' + this.value">
+                    <option value="12" selected="@(Model.PageSize == 12)">12</option>
+                    <option value="24" selected="@(Model.PageSize == 24)">24</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                </select>
+            </div>
+            @if ((Model.Teachers?.TotalPages ?? 0) > 1)
+            {
+                <ul class="pagination mb-0">
+                    @for (int i = 1; i <= Model.Teachers!.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-page="/Teachers/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize">@i</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </nav>
+}

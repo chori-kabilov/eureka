@@ -9,9 +9,10 @@ public class StudentsService(ApiClient apiClient)
     public async Task<PagedResponse<StudentViewModel>?> ListAsync(
         string? search = null, 
         int? status = null, 
-        int page = 1)
+        int page = 1,
+        int pageSize = 12)
     {
-        var url = $"/api/v1/students?page={page}&pageSize=20";
+        var url = $"/api/v1/students?page={page}&pageSize={pageSize}";
         
         if (!string.IsNullOrEmpty(search))
             url += $"&search={Uri.EscapeDataString(search)}";
@@ -32,9 +33,14 @@ public class StudentsService(ApiClient apiClient)
         return await apiClient.PostAsync<object, ApiResponse<StudentViewModel>>("/api/v1/students", request);
     }
 
-    public async Task<ApiResponse<StudentViewModel>?> UpdateAsync(Guid id, int status, string? notes)
+    public async Task<ApiResponse<StudentViewModel>?> UpdateAsync(
+        Guid id, 
+        string fullName, 
+        string phone, 
+        int status, 
+        string? notes)
     {
-        var request = new { Status = status, Notes = notes };
+        var request = new { FullName = fullName, Phone = phone, Status = status, Notes = notes };
         return await apiClient.PatchAsync<object, ApiResponse<StudentViewModel>>($"/api/v1/students/{id}", request);
     }
 

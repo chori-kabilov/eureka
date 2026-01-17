@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using RazorWebApp.Models.Common;
 using RazorWebApp.Models.Teachers;
@@ -19,11 +20,19 @@ public class IndexModel : PageModel
     public PagedResponse<TeacherViewModel>? Teachers { get; set; }
     public string? Search { get; set; }
     public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 12;
 
-    public async Task OnGetAsync(string? search, int currentPage = 1)
+    public async Task OnGetAsync(string? search, int currentPage = 1, int pageSize = 12)
     {
         Search = search;
         CurrentPage = currentPage;
-        Teachers = await _teachersService.ListAsync(search, currentPage);
+        PageSize = pageSize;
+        Teachers = await _teachersService.ListAsync(search, currentPage, pageSize);
+    }
+
+    public async Task<IActionResult> OnPostDeleteAsync(Guid id)
+    {
+        await _teachersService.DeleteAsync(id);
+        return RedirectToPage();
     }
 }

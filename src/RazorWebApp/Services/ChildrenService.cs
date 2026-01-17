@@ -9,9 +9,10 @@ public class ChildrenService(ApiClient apiClient)
     public async Task<PagedResponse<ChildViewModel>?> ListAsync(
         string? search = null, 
         Guid? parentId = null,
-        int page = 1)
+        int page = 1,
+        int pageSize = 12)
     {
-        var url = $"/api/v1/children?page={page}&pageSize=20";
+        var url = $"/api/v1/children?page={page}&pageSize={pageSize}";
         
         if (!string.IsNullOrEmpty(search))
             url += $"&search={Uri.EscapeDataString(search)}";

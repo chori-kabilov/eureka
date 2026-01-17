@@ -16,7 +16,6 @@
     </div>
 </div>
 
-<!-- Фильтры -->
 <div class="card mb-4">
     <div class="card-body py-3">
         <form method="get" class="row g-3 align-items-end">
@@ -39,75 +38,332 @@
     </div>
 </div>
 
-<!-- Таблица -->
-<div class="card">
-    <div class="card-body p-0">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Имя</th>
-                    <th>Телефон</th>
-                    <th>Баланс</th>
-                    <th>Статус</th>
-                    <th>Дата регистрации</th>
-                    <th width="100"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Students?.Items?.Any() == true)
-                {
-                    @foreach (var s in Model.Students.Items)
-                    {
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="user-avatar" style="width: 32px; height: 32px; font-size: 12px;">
-                                        <i class="bi bi-person"></i>
-                                    </div>
-                                    <span class="fw-medium">@s.FullName</span>
-                                </div>
-                            </td>
-                            <td>@s.Phone</td>
-                            <td class="@(s.Balance >= 0 ? "text-success" : "text-danger")">
-                                @s.Balance.ToString("N0") ₸
-                            </td>
-                            <td><span class="badge @s.StatusBadgeClass">@s.StatusName</span></td>
-                            <td class="text-muted">@s.CreatedAt.ToString("dd.MM.yyyy")</td>
-                            <td>
-                                <a asp-page="/Students/Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary" title="Редактировать">
-                                    <i class="bi bi-pencil"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="6">
-                            <div class="empty-state">
-                                <i class="bi bi-mortarboard"></i>
-                                <h5>Нет студентов</h5>
-                                <p>Добавьте первого студента</p>
+<div class="row">
+    @if (Model.Students?.Items?.Any() == true)
+    {
+        @foreach (var s in Model.Students.Items)
+        {
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card student-card h-100" 
+                     data-bs-toggle="modal" data-bs-target="#studentModal"
+                     data-id="@s.Id"
+                     data-name="@s.FullName"
+                     data-phone="@s.Phone"
+                     data-status="@s.StatusName"
+                     data-status-class="@s.StatusBadgeClass"
+                     data-status-code="@s.Status"
+                     data-notes="@s.Notes"
+                     data-created="@s.CreatedAt.ToString("dd.MM.yyyy")">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="student-avatar-card">
+                                @s.FullName.Substring(0, 1).ToUpper()
                             </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-2 fw-semibold">@s.FullName</h6>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="text-muted small">
+                                        <i class="bi bi-telephone me-1"></i>@s.Phone
+                                    </span>
+                                    <span class="badge @s.StatusBadgeClass">@s.StatusName</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-mortarboard display-4 text-muted"></i>
+                    <h5 class="mt-3 text-muted">Нет студентов</h5>
+                    <p class="text-muted">Добавьте первого студента</p>
+                    <a asp-page="/Students/Create" class="btn btn-primary mt-2">
+                        <i class="bi bi-plus-lg me-1"></i> Добавить студента
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @if ((Model.Students?.TotalPages ?? 0) > 1)
 {
     <nav class="mt-4">
-        <ul class="pagination justify-content-center">
-            @for (int i = 1; i <= Model.Students!.TotalPages; i++)
-            {
-                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                    <a class="page-link" asp-page="/Students/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search">@i</a>
-                </li>
-            }
-        </ul>
+        <div class="d-flex justify-content-center">
+            <ul class="pagination mb-0">
+                @for (int i = 1; i <= Model.Students!.TotalPages; i++)
+                {
+                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                        <a class="page-link" asp-page="/Students/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize">@i</a>
+                    </li>
+                }
+            </ul>
+        </div>
     </nav>
+}
+
+<div class="modal fade" id="studentModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <div id="viewMode">
+                <div class="modal-body pt-0">
+                    <div class="text-center mb-4">
+                        <div class="student-avatar-xl mx-auto mb-3">
+                            <span id="modalAvatar">C</span>
+                        </div>
+                        <h4 id="modalName" class="mb-1">Chori Kabilov</h4>
+                        <span id="modalStatus" class="badge bg-success">Активный</span>
+                    </div>
+                    
+                    <div class="info-grid">
+                        <div class="info-card full-width">
+                            <div class="info-label">ТЕЛЕФОН</div>
+                            <div class="info-value">
+                                <i class="bi bi-telephone text-primary me-2"></i>
+                                <span id="modalPhone">+992 90 000 00 00</span>
+                            </div>
+                        </div>
+                        <div class="info-card full-width">
+                            <div class="info-label">ЗАМЕТКИ</div>
+                            <div class="info-value text-muted" id="modalNotes">—</div>
+                        </div>
+                        <div class="info-card full-width">
+                            <div class="info-label">ДАТА РЕГИСТРАЦИИ</div>
+                            <div class="info-value">
+                                <i class="bi bi-calendar-plus text-muted me-2"></i>
+                                <span id="modalCreated">01.01.2026</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0 justify-content-center gap-2">
+                    <button type="button" class="btn btn-primary" onclick="enterEditMode()">
+                        <i class="bi bi-pencil me-1"></i> Редактировать
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    <button type="button" class="btn btn-outline-danger" onclick="enterDeleteMode()">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div id="editMode" style="display: none;">
+                <form method="post" asp-page-handler="Update" id="editForm">
+                    <input type="hidden" name="id" id="editId" />
+                    <div class="modal-body pt-0">
+                        <div class="text-center mb-4">
+                            <div class="student-avatar-xl mx-auto mb-3">
+                                <span id="editAvatar">C</span>
+                            </div>
+                            <h5 class="mb-0 text-muted">Редактирование</h5>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Полное имя</label>
+                            <input type="text" name="fullName" id="editName" class="form-control" placeholder="Имя Фамилия" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Телефон</label>
+                            <input type="tel" name="phone" id="editPhone" class="form-control" placeholder="+992 90 000 00 00" required />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Статус</label>
+                            <select name="status" id="editStatus" class="form-select">
+                                <option value="0">Активный</option>
+                                <option value="1">Неактивный</option>
+                                <option value="2">Закончил</option>
+                                <option value="3">Отчислен</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Заметки</label>
+                            <textarea name="notes" id="editNotes" class="form-control" rows="2" placeholder="Заметки о студенте..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 pt-0 justify-content-center gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg me-1"></i> Сохранить
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="exitEditMode()">Отмена</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="deleteMode" style="display: none;">
+                <div class="modal-body text-center py-5">
+                    <div class="text-danger mb-3">
+                        <i class="bi bi-exclamation-triangle display-4"></i>
+                    </div>
+                    <h4>Удалить студента?</h4>
+                    <p class="text-muted mb-0" id="deleteStudentName">Chori Kabilov</p>
+                </div>
+                <div class="modal-footer border-0 pt-0 justify-content-center gap-2">
+                    <form method="post" asp-page-handler="Delete" id="deleteForm">
+                        <input type="hidden" name="id" id="deleteId" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i> Да, удалить
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-secondary" onclick="exitDeleteMode()">Отмена</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.student-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.student-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color);
+}
+
+.student-avatar-card {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.student-avatar-xl {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 600;
+}
+
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.info-card {
+    background: var(--bg-color);
+    border-radius: var(--radius-md);
+    padding: 14px;
+}
+
+.info-card.full-width {
+    grid-column: span 2;
+}
+
+.info-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+}
+
+.info-value {
+    font-size: 14px;
+    color: var(--text-color);
+    display: flex;
+    align-items: center;
+}
+
+.min-w-0 {
+    min-width: 0;
+}
+</style>
+
+@section Scripts {
+<script>
+let currentStudentData = {};
+
+document.getElementById('studentModal').addEventListener('show.bs.modal', function (event) {
+    const card = event.relatedTarget;
+    currentStudentData = {
+        id: card.dataset.id,
+        name: card.dataset.name,
+        phone: card.dataset.phone,
+        status: card.dataset.status,
+        statusClass: card.dataset.statusClass,
+        statusCode: card.dataset.statusCode || '0',
+        notes: card.dataset.notes || '',
+        created: card.dataset.created
+    };
+    
+    showViewMode();
+});
+
+function showViewMode() {
+    document.getElementById('viewMode').style.display = 'block';
+    document.getElementById('editMode').style.display = 'none';
+    document.getElementById('deleteMode').style.display = 'none';
+    
+    const d = currentStudentData;
+    document.getElementById('modalAvatar').textContent = d.name.charAt(0).toUpperCase();
+    document.getElementById('modalName').textContent = d.name;
+    document.getElementById('modalStatus').textContent = d.status;
+    document.getElementById('modalStatus').className = 'badge ' + d.statusClass;
+    document.getElementById('modalPhone').textContent = d.phone;
+    document.getElementById('modalNotes').textContent = d.notes || '—';
+    document.getElementById('modalCreated').textContent = d.created;
+}
+
+function enterEditMode() {
+    document.getElementById('viewMode').style.display = 'none';
+    document.getElementById('editMode').style.display = 'block';
+    document.getElementById('deleteMode').style.display = 'none';
+    
+    const d = currentStudentData;
+    document.getElementById('editId').value = d.id;
+    document.getElementById('editAvatar').textContent = d.name.charAt(0).toUpperCase();
+    document.getElementById('editName').value = d.name;
+    document.getElementById('editPhone').value = d.phone;
+    document.getElementById('editStatus').value = d.statusCode;
+    document.getElementById('editNotes').value = d.notes || '';
+}
+
+function exitEditMode() {
+    showViewMode();
+}
+
+function enterDeleteMode() {
+    document.getElementById('viewMode').style.display = 'none';
+    document.getElementById('editMode').style.display = 'none';
+    document.getElementById('deleteMode').style.display = 'block';
+    
+    document.getElementById('deleteId').value = currentStudentData.id;
+    document.getElementById('deleteStudentName').textContent = currentStudentData.name;
+}
+
+function exitDeleteMode() {
+    showViewMode();
+}
+
+document.getElementById('studentModal').addEventListener('hidden.bs.modal', function () {
+    showViewMode();
+});
+</script>
 }

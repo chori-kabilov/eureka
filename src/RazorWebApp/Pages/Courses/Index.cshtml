@@ -62,9 +62,17 @@
                                     <span><i class="bi bi-clock me-1"></i>@c.DurationHours ч.</span>
                                 }
                             </div>
-                            <a asp-page="/Courses/Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">
-                                Редактировать
-                            </a>
+                            <div class="d-flex gap-1">
+                                <a asp-page="/Courses/Edit" asp-route-id="@c.Id" class="btn btn-sm btn-outline-primary">
+                                    Редактировать
+                                </a>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@c.Id"
+                                      onsubmit="return confirm('Удалить курс @c.Name?');" style="display: inline;">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -89,3 +97,30 @@
         </div>
     }
 </div>
+
+@if ((Model.Courses?.TotalPages ?? 0) > 1 || Model.PageSize != 12)
+{
+    <nav class="mt-4">
+        <div class="d-flex justify-content-center align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Показывать:</span>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='?currentPage=1&search=@Model.Search&pageSize=' + this.value">
+                    <option value="12" selected="@(Model.PageSize == 12)">12</option>
+                    <option value="24" selected="@(Model.PageSize == 24)">24</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                </select>
+            </div>
+            @if ((Model.Courses?.TotalPages ?? 0) > 1)
+            {
+                <ul class="pagination mb-0">
+                    @for (int i = 1; i <= Model.Courses!.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-page="/Courses/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize">@i</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </nav>
+}

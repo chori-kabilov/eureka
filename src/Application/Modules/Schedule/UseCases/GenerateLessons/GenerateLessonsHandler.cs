@@ -24,16 +24,20 @@ public class GenerateLessonsHandler(IDataContext db)
         var teacherId = group.DefaultTeacherId ?? group.ResponsibleTeacherId;
         var generated = 0;
 
+        // Конвертируем даты в UTC для PostgreSQL
+        var fromDateUtc = DateTime.SpecifyKind(request.FromDate.Date, DateTimeKind.Utc);
+        var toDateUtc = DateTime.SpecifyKind(request.ToDate.Date, DateTimeKind.Utc);
+
         var existingDates = await db.Lessons
             .Where(l => l.GroupId == request.GroupId && 
-                       l.Date >= request.FromDate && 
-                       l.Date <= request.ToDate)
+                       l.Date >= fromDateUtc && 
+                       l.Date <= toDateUtc)
             .Select(l => new { l.Date, l.StartTime })
             .ToListAsync(ct);
 
         var existingSet = existingDates.Select(x => $"{x.Date:yyyy-MM-dd}_{x.StartTime}").ToHashSet();
 
-        for (var date = request.FromDate.Date; date <= request.ToDate.Date; date = date.AddDays(1))
+        for (var date = fromDateUtc; date <= toDateUtc; date = date.AddDays(1))
         {
             foreach (var template in templates.Where(t => t.DayOfWeek == date.DayOfWeek))
             {

@@ -18,8 +18,16 @@ public class UpdateStudentHandler(IDataContext db)
             .Include(s => s.User)
             .FirstOrDefaultAsync(s => s.Id == request.Id, ct);
 
+        Console.WriteLine($"UPDATE: FullName='{request.FullName}', Phone='{request.Phone}', Status={request.Status}, Notes='{request.Notes}'");
+
         if (student == null)
             return Result<StudentDetailDto>.Failure(Error.NotFound("Студент"));
+
+        if (!string.IsNullOrEmpty(request.FullName) && student.User != null)
+            student.User.FullName = request.FullName;
+        
+        if (!string.IsNullOrEmpty(request.Phone) && student.User != null)
+            student.User.Phone = request.Phone;
 
         if (request.Status.HasValue)
             student.Status = (StudentStatus)request.Status.Value;

@@ -48,11 +48,15 @@ public class ApiClient(HttpClient httpClient)
     {
         try
         {
+            Console.WriteLine($"PATCH {url}");
             var response = await httpClient.PatchAsJsonAsync(url, data);
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Response: {response.StatusCode} - {content}");
             return await response.Content.ReadFromJsonAsync<TResponse>();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"PATCH Error: {ex.Message}");
             return default;
         }
     }

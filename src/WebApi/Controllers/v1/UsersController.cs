@@ -6,7 +6,6 @@ using Application.Modules.Users.UseCases.UpdateUserRole;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Contracts.Common;
-using WebApi.Contracts.Users;
 using WebApi.Extensions;
 
 namespace WebApi.Controllers.v1;
@@ -67,15 +66,10 @@ public class UsersController(
     [HttpPatch("{id:guid}/admin")]
     public async Task<IActionResult> UpdateAdmin(
         Guid id,
-        [FromBody] UpdateAdminApiRequest apiRequest,
+        [FromBody] UpdateUserRoleRequest request,
         CancellationToken ct)
     {
-        var request = new UpdateUserRoleRequest
-        {
-            UserId = id,
-            IsAdmin = apiRequest.IsAdmin
-        };
-
+        request.UserId = id;
         var result = await updateRoleHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }

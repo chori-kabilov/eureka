@@ -42,74 +42,100 @@
     </div>
 </div>
 
-<!-- Таблица групп -->
-<div class="card">
-    <div class="card-body p-0">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Группа</th>
-                    <th>Курс</th>
-                    <th>Учитель</th>
-                    <th>Студенты</th>
-                    <th>Период</th>
-                    <th>Статус</th>
-                    <th width="120"></th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.Groups?.Items?.Any() == true)
-                {
-                    @foreach (var g in Model.Groups.Items)
-                    {
-                        <tr>
-                            <td>
-                                <div class="fw-medium">@g.Name</div>
-                                @if (!string.IsNullOrEmpty(g.Code))
-                                {
-                                    <small class="text-muted">@g.Code</small>
-                                }
-                            </td>
-                            <td>@g.CourseName</td>
-                            <td>@g.ResponsibleTeacherName</td>
-                            <td>
-                                <span class="badge bg-primary">@g.CurrentStudents / @g.MaxStudents</span>
-                            </td>
-                            <td class="text-muted small">
-                                @g.StartDate.ToString("dd.MM.yyyy") — @(g.EndDate?.ToString("dd.MM.yyyy") ?? "...")
-                            </td>
-                            <td>
-                                <span class="badge @g.StatusBadgeClass">@g.StatusName</span>
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <a asp-page="/Groups/Details" asp-route-id="@g.Id" class="btn btn-outline-primary" title="Подробнее">
-                                        <i class="bi bi-eye"></i>
-                                    </a>
-                                    <a asp-page="/Groups/Journal" asp-route-id="@g.Id" class="btn btn-outline-warning" title="Журнал">
-                                        <i class="bi bi-journal-text"></i>
-                                    </a>
-                                    <a asp-page="/Groups/Edit" asp-route-id="@g.Id" class="btn btn-outline-secondary" title="Редактировать">
-                                        <i class="bi bi-pencil"></i>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    }
-                }
-                else
-                {
-                    <tr>
-                        <td colspan="7">
-                            <div class="empty-state">
-                                <i class="bi bi-collection"></i>
-                                <h5>Нет групп</h5>
-                                <p>Создайте первую группу</p>
+<!-- Карточки групп -->
+<div class="row">
+    @if (Model.Groups?.Items?.Any() == true)
+    {
+        @foreach (var g in Model.Groups.Items)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="stat-icon purple" style="width: 48px; height: 48px; font-size: 20px; border-radius: 12px;">
+                                <i class="bi bi-people"></i>
                             </div>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                            <span class="badge @g.StatusBadgeClass">@g.StatusName</span>
+                        </div>
+                        <h5 class="fw-semibold mb-1">@g.Name</h5>
+                        @if (!string.IsNullOrEmpty(g.Code))
+                        {
+                            <small class="text-muted d-block mb-2">@g.Code</small>
+                        }
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-book me-1"></i>@g.CourseName
+                        </p>
+                        <p class="text-muted small mb-3">
+                            <i class="bi bi-person-workspace me-1"></i>@g.ResponsibleTeacherName
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <span class="badge bg-primary me-2">
+                                    <i class="bi bi-people-fill me-1"></i>@g.CurrentStudents / @g.MaxStudents
+                                </span>
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-calendar me-1"></i>@g.StartDate.ToString("dd.MM.yy") — @(g.EndDate?.ToString("dd.MM.yy") ?? "...")
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a asp-page="/Groups/Details" asp-route-id="@g.Id" class="btn btn-sm btn-primary flex-fill">
+                                <i class="bi bi-eye me-1"></i> Подробнее
+                            </a>
+                            <a asp-page="/Groups/Journal" asp-route-id="@g.Id" class="btn btn-sm btn-outline-warning" title="Журнал">
+                                <i class="bi bi-journal-text"></i>
+                            </a>
+                            <a asp-page="/Groups/Edit" asp-route-id="@g.Id" class="btn btn-sm btn-outline-secondary" title="Редактировать">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-collection"></i>
+                        <h5>Нет групп</h5>
+                        <p>Создайте первую группу</p>
+                        <a asp-page="/Groups/Create" class="btn btn-primary mt-2">
+                            <i class="bi bi-plus-lg me-1"></i> Создать группу
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
+
+@if ((Model.Groups?.TotalPages ?? 0) > 1 || Model.PageSize != 12)
+{
+    <nav class="mt-4">
+        <div class="d-flex justify-content-center align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Показывать:</span>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='?currentPage=1&search=@Model.Search&status=@Model.Status&pageSize=' + this.value">
+                    <option value="12" selected="@(Model.PageSize == 12)">12</option>
+                    <option value="24" selected="@(Model.PageSize == 24)">24</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                </select>
+            </div>
+            @if ((Model.Groups?.TotalPages ?? 0) > 1)
+            {
+                <ul class="pagination mb-0">
+                    @for (int i = 1; i <= Model.Groups!.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-page="/Groups/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-pageSize="@Model.PageSize">@i</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </nav>
+}

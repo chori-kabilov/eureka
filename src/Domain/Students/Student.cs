@@ -9,7 +9,6 @@ public class Student : BaseEntity
     public Guid UserId { get; set; }
     public User User { get; set; } = null!;
     
-    public decimal Balance { get; set; }
     public StudentStatus Status { get; set; }
     public string? Notes { get; set; }
     

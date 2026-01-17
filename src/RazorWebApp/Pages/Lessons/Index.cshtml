@@ -1,0 +1,183 @@
+@page
+@model RazorWebApp.Pages.Lessons.IndexModel
+@{
+    ViewData["Title"] = "Занятия";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title">Все занятия</h1>
+        <p class="page-subtitle">Глобальный список занятий с фильтрами</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Schedule" class="btn btn-outline-primary">
+            <i class="bi bi-calendar3 me-1"></i> Календарь
+        </a>
+    </div>
+</div>
+
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Группа</label>
+                <select name="groupId" class="form-select">
+                    <option value="">Все группы</option>
+                    @foreach (var group in Model.Groups)
+                    {
+                        <option value="@group.Id" selected="@(Model.GroupId == group.Id)">@group.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Дата от</label>
+                <input type="date" name="dateFrom" class="form-control" value="@Model.DateFrom?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Дата до</label>
+                <input type="date" name="dateTo" class="form-control" value="@Model.DateTo?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Статус</label>
+                <select name="status" class="form-select">
+                    <option value="">Все</option>
+                    <option value="Planned" selected="@(Model.Status == "Planned")">Запланировано</option>
+                    <option value="InProgress" selected="@(Model.Status == "InProgress")">Идёт</option>
+                    <option value="Completed" selected="@(Model.Status == "Completed")">Завершено</option>
+                    <option value="Cancelled" selected="@(Model.Status == "Cancelled")">Отменено</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">
+                    <i class="bi bi-search me-1"></i> Найти
+                </button>
+                <a href="/Lessons" class="btn btn-outline-secondary">Сбросить</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Статистика -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue"><i class="bi bi-calendar-check"></i></div>
+        <div>
+            <div class="stat-value">@Model.TotalCount</div>
+            <div class="stat-label">Всего занятий</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green"><i class="bi bi-check-circle"></i></div>
+        <div>
+            <div class="stat-value">@Model.Lessons.Count(l => l.Status == "Completed")</div>
+            <div class="stat-label">Завершено</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon purple"><i class="bi bi-clock"></i></div>
+        <div>
+            <div class="stat-value">@Model.Lessons.Count(l => l.Status == "Planned")</div>
+            <div class="stat-label">Запланировано</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon orange"><i class="bi bi-x-circle"></i></div>
+        <div>
+            <div class="stat-value">@Model.Lessons.Count(l => l.Status == "Cancelled")</div>
+            <div class="stat-label">Отменено</div>
+        </div>
+    </div>
+</div>
+
+<!-- Карточки занятий -->
+<div class="row">
+    @if (Model.Lessons.Any())
+    {
+        @foreach (var lesson in Model.Lessons)
+        {
+            var statusClass = lesson.Status switch
+            {
+                "Planned" => "bg-primary",
+                "InProgress" => "bg-warning",
+                "Completed" => "bg-success",
+                "Cancelled" => "bg-danger",
+                _ => "bg-secondary"
+            };
+            var statusName = lesson.Status switch
+            {
+                "Planned" => "Запланировано",
+                "InProgress" => "Идёт",
+                "Completed" => "Завершено",
+                "Cancelled" => "Отменено",
+                _ => lesson.Status
+            };
+            
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card h-100 @(lesson.Status == "Cancelled" ? "opacity-75" : "")">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="stat-icon blue" style="width: 48px; height: 48px; font-size: 18px; border-radius: 12px;">
+                                <i class="bi bi-calendar-event"></i>
+                            </div>
+                            <span class="badge @statusClass">@statusName</span>
+                        </div>
+                        <h5 class="fw-semibold mb-1">@lesson.GroupName</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-calendar me-1"></i>@lesson.Date.ToString("dd.MM.yyyy") • @lesson.Date.ToString("dddd", new System.Globalization.CultureInfo("ru-RU"))
+                        </p>
+                        <p class="small mb-3">
+                            <i class="bi bi-clock me-1 text-primary"></i>
+                            <strong>@lesson.StartTime.ToString(@"hh\:mm") - @lesson.EndTime.ToString(@"hh\:mm")</strong>
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted small">
+                                <i class="bi bi-person-workspace me-1"></i>@(lesson.TeacherName ?? "—")
+                            </div>
+                            <div class="text-muted small">
+                                <i class="bi bi-building me-1"></i>@(lesson.RoomName ?? "—")
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a href="/Lessons/Attendance?lessonId=@lesson.Id" class="btn btn-sm btn-outline-primary flex-fill">
+                                <i class="bi bi-clipboard-check me-1"></i> Посещ.
+                            </a>
+                            <a href="/Lessons/Grades?lessonId=@lesson.Id" class="btn btn-sm btn-outline-success flex-fill">
+                                <i class="bi bi-star me-1"></i> Оценки
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-calendar-x"></i>
+                        <h5>Занятия не найдены</h5>
+                        <p>Попробуйте изменить параметры фильтра</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Пагинация -->
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            @for (var i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?page=@i&groupId=@Model.GroupId&dateFrom=@Model.DateFrom?.ToString("yyyy-MM-dd")&dateTo=@Model.DateTo?.ToString("yyyy-MM-dd")&status=@Model.Status">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

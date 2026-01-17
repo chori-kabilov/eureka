@@ -4,103 +4,124 @@
     ViewData["Title"] = "Дети";
 }
 
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-people-fill me-2"></i>Дети</h2>
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1 class="page-title">Дети</h1>
+            <p class="page-subtitle">Управление детьми учебного центра</p>
+        </div>
         <a asp-page="/Children/Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg"></i> Добавить ребёнка
+            <i class="bi bi-plus-lg me-1"></i> Добавить ребёнка
         </a>
     </div>
+</div>
 
-    <!-- Фильтры -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-5">
-                    <input type="text" name="search" class="form-control" 
-                           placeholder="Поиск по имени..." value="@Model.Search" />
-                </div>
-                <div class="col-md-2">
-                    <button type="submit" class="btn btn-outline-primary w-100">
-                        <i class="bi bi-search"></i> Найти
-                    </button>
-                </div>
-            </form>
-        </div>
+<!-- Фильтры -->
+<div class="card mb-4">
+    <div class="card-body py-3">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Поиск</label>
+                <input type="text" name="search" class="form-control" placeholder="Имя ребёнка..." value="@Model.Search" />
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i> Искать
+                </button>
+            </div>
+        </form>
     </div>
+</div>
 
-    <!-- Таблица -->
-    <div class="card">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>ФИО</th>
-                        <th>Родитель</th>
-                        <th>Возраст</th>
-                        <th>Статус</th>
-                        <th width="100"></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Children?.Items?.Any() == true)
-                    {
-                        @foreach (var child in Model.Children.Items)
-                        {
-                            <tr>
-                                <td class="fw-medium">@child.FullName</td>
-                                <td>@child.ParentName</td>
-                                <td>
-                                    @if (child.Age.HasValue)
-                                    {
-                                        <text>@child.Age лет</text>
-                                    }
-                                    else
-                                    {
-                                        <text>-</text>
-                                    }
-                                </td>
-                                <td>
-                                    <span class="badge @child.StatusBadgeClass">@child.StatusName</span>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a asp-page="/Children/Edit" asp-route-id="@child.Id" 
-                                           class="btn btn-outline-primary" title="Редактировать">
-                                            <i class="bi bi-pencil"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="6" class="text-center text-muted py-4">
-                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                Дети не найдены
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Пагинация -->
-    @if (Model.Children?.TotalPages > 1)
+<!-- Карточки детей -->
+<div class="row">
+    @if (Model.Children?.Items?.Any() == true)
     {
-        <nav class="mt-4">
-            <ul class="pagination justify-content-center">
-                @for (int i = 1; i <= Model.Children.TotalPages; i++)
-                {
-                    <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                        <a class="page-link" asp-page="/Children/Index" 
-                           asp-route-currentPage="@i" asp-route-search="@Model.Search">@i</a>
-                    </li>
-                }
-            </ul>
-        </nav>
+        @foreach (var child in Model.Children.Items)
+        {
+            <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between mb-3">
+                            <div class="stat-icon orange" style="width: 48px; height: 48px; font-size: 20px; border-radius: 50%;">
+                                <i class="bi bi-emoji-smile"></i>
+                            </div>
+                            <span class="badge @child.StatusBadgeClass">@child.StatusName</span>
+                        </div>
+                        <h5 class="fw-semibold mb-1">@child.FullName</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-person-hearts me-1"></i>@child.ParentName
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted small">
+                                @if (child.Age.HasValue)
+                                {
+                                    <text><i class="bi bi-calendar3 me-1"></i>@(child.Age) лет</text>
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </div>
+                        </div>
+                        <div class="d-flex gap-1">
+                            <a asp-page="/Children/Edit" asp-route-id="@child.Id" class="btn btn-sm btn-outline-primary flex-fill">
+                                <i class="bi bi-pencil me-1"></i> Редактировать
+                            </a>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@child.Id"
+                                  onsubmit="return confirm('Удалить ребёнка @child.FullName?');" style="display: inline;">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="empty-state">
+                        <i class="bi bi-emoji-smile"></i>
+                        <h5>Нет детей</h5>
+                        <p>Добавьте первого ребёнка</p>
+                        <a asp-page="/Children/Create" class="btn btn-primary mt-2">
+                            <i class="bi bi-plus-lg me-1"></i> Добавить ребёнка
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     }
 </div>
+
+@if ((Model.Children?.TotalPages ?? 0) > 1 || Model.PageSize != 12)
+{
+    <nav class="mt-4">
+        <div class="d-flex justify-content-center align-items-center gap-3">
+            <div class="d-flex align-items-center gap-2">
+                <span class="text-muted small">Показывать:</span>
+                <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='?currentPage=1&search=@Model.Search&pageSize=' + this.value">
+                    <option value="12" selected="@(Model.PageSize == 12)">12</option>
+                    <option value="24" selected="@(Model.PageSize == 24)">24</option>
+                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
+                </select>
+            </div>
+            @if ((Model.Children?.TotalPages ?? 0) > 1)
+            {
+                <ul class="pagination mb-0">
+                    @for (int i = 1; i <= Model.Children!.TotalPages; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" asp-page="/Children/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize">@i</a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+    </nav>
+}

@@ -12,7 +12,6 @@ public static class StudentMapper
         UserId = student.UserId,
         FullName = student.User?.FullName ?? string.Empty,
         Phone = student.User?.Phone ?? string.Empty,
-        Balance = student.Balance,
         Status = student.Status,
         CreatedAt = student.CreatedAt
     };
@@ -23,7 +22,6 @@ public static class StudentMapper
         UserId = student.UserId,
         FullName = student.User?.FullName ?? string.Empty,
         Phone = student.User?.Phone ?? string.Empty,
-        Balance = student.Balance,
         Status = student.Status,
         Notes = student.Notes,
         CreatedAt = student.CreatedAt,

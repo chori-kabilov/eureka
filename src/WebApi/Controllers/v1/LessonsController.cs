@@ -8,6 +8,7 @@ using Domain.Schedule;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Contracts.Common;
+using WebApi.Contracts.Lessons;
 using WebApi.Extensions;
 
 namespace WebApi.Controllers.v1;
@@ -78,7 +79,7 @@ public class LessonsController(
     }
 
     [HttpPost("{id:guid}/cancel")]
-    public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelRequest? request, CancellationToken ct)
+    public async Task<IActionResult> Cancel(Guid id, [FromBody] CancelLessonRequest? request, CancellationToken ct)
     {
         var result = await cancelHandler.HandleAsync(id, request?.Reason, ct);
         if (result.IsSuccess)

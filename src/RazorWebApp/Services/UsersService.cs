@@ -6,9 +6,9 @@ namespace RazorWebApp.Services;
 // Сервис для работы с пользователями
 public class UsersService(ApiClient api)
 {
-    public async Task<UsersPagedResponse?> ListAsync(string? search = null, bool? isAdmin = null, int page = 1)
+    public async Task<UsersPagedResponse?> ListAsync(string? search = null, bool? isAdmin = null, int page = 1, int pageSize = 12)
     {
-        var url = $"/api/v1/users?page={page}";
+        var url = $"/api/v1/users?page={page}&pageSize={pageSize}";
         if (!string.IsNullOrEmpty(search))
             url += $"&search={Uri.EscapeDataString(search)}";
         if (isAdmin.HasValue)

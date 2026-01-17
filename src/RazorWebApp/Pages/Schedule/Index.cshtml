@@ -1,0 +1,384 @@
+@page
+@model RazorWebApp.Pages.Schedule.IndexModel
+@{
+    ViewData["Title"] = "Календарь и расписание";
+    var today = DateTime.Today;
+    var todayLessons = Model.Lessons.Where(l => l.Date == today.ToString("yyyy-MM-dd")).OrderBy(l => l.StartTime).ToList();
+}
+
+<div class="container-fluid">
+    <!-- Заголовок -->
+    <div class="page-header d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <h1 class="page-title mb-1">Календарь и расписание</h1>
+            <p class="page-subtitle text-muted">Управление расписанием занятий и бронирование аудиторий</p>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="showCreateModal()">
+                <i class="bi bi-plus-lg me-1"></i> Добавить событие
+            </button>
+            <a asp-page="/Rooms/Index" class="btn btn-outline-secondary">
+                <i class="bi bi-building me-1"></i> Забронировать аудиторию
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Основной календарь -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="calendar.prev()">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <span class="fw-bold" id="calendarTitle">Январь 2026</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="calendar.next()">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-primary" onclick="calendar.changeView('dayGridMonth')">Месяц</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="calendar.changeView('timeGridWeek')">Неделя</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="calendar.changeView('timeGridDay')">День</button>
+                        </div>
+                        <select class="form-select form-select-sm" id="groupFilter" style="width: 150px;">
+                            <option value="">Все группы</option>
+                            @foreach (var group in Model.Groups)
+                            {
+                                <option value="@group.Id">@group.Name</option>
+                            }
+                        </select>
+                        <select class="form-select form-select-sm" id="teacherFilter" style="width: 170px;">
+                            <option value="">Все преподаватели</option>
+                            @foreach (var teacher in Model.Teachers)
+                            {
+                                <option value="@teacher.Id">@teacher.Name</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body p-3">
+                    <div id="calendar" style="min-height: 500px;"></div>
+                </div>
+            </div>
+            
+            <!-- События сегодня -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <i class="bi bi-calendar-day me-2"></i>События сегодня
+                    <span class="badge bg-primary ms-2">@todayLessons.Count</span>
+                </div>
+                <div class="card-body p-0">
+                    @if (todayLessons.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var lesson in todayLessons)
+                            {
+                                <div class="list-group-item d-flex align-items-center gap-3">
+                                    <div class="time-badge">
+                                        @lesson.StartTime - @lesson.EndTime
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="fw-bold">@lesson.GroupName</div>
+                                        <div class="text-muted small">
+                                            <span class="text-primary">@lesson.TeacherName</span>
+                                            @if (!string.IsNullOrEmpty(lesson.RoomName))
+                                            {
+                                                <span class="ms-2 text-success">@lesson.RoomName</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    <a href="/Lessons/Attendance?lessonId=@lesson.Id" class="btn btn-sm btn-outline-primary" title="Редактировать">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-calendar-x fs-1 d-block mb-2"></i>
+                            Нет занятий на сегодня
+                        </div>
+                    }
+                </div>
+            </div>
+            
+            <!-- Свободные аудитории -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="bi bi-building me-2"></i>Свободные аудитории
+                </div>
+                <div class="card-body p-0">
+                    @if (Model.Rooms.Any())
+                    {
+                        <div class="list-group list-group-flush">
+                            @foreach (var room in Model.Rooms)
+                            {
+                                var isOccupied = Model.OccupiedRoomIds.Contains(room.Id);
+                                <div class="list-group-item d-flex justify-content-between align-items-center @(isOccupied ? "list-group-item-danger" : "")">
+                                    <div>
+                                        <span class="fw-medium">@room.Name</span>
+                                        @if (room.Capacity > 0)
+                                        {
+                                            <span class="text-muted small ms-2">до @room.Capacity человек</span>
+                                        }
+                                    </div>
+                                    @if (isOccupied)
+                                    {
+                                        <span class="badge bg-danger">Занята</span>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-success">Забронировать</button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-building fs-1 d-block mb-2"></i>
+                            Нет аудиторий
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        
+        <!-- Мини-календарь справа -->
+        <div class="col-lg-4">
+            <div class="card sticky-top" style="top: 80px;">
+                <div class="card-body">
+                    <div id="miniCalendar"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Модалка деталей занятия -->
+<div class="modal fade" id="lessonModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="lessonModalTitle">Детали занятия</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="lessonModalBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <a href="#" class="btn btn-primary" id="btnAttendance">
+                    <i class="bi bi-clipboard-check me-1"></i> Посещаемость
+                </a>
+                <a href="#" class="btn btn-success" id="btnGrades">
+                    <i class="bi bi-star me-1"></i> Оценки
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/locales/ru.global.min.js"></script>
+    
+    <style>
+        /* Calendar Styles */
+        .fc {
+            font-family: 'Inter', sans-serif;
+        }
+        .fc-toolbar-title {
+            font-size: 1.1rem !important;
+            font-weight: 600;
+        }
+        .fc-button {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+            font-size: 13px !important;
+            padding: 4px 10px !important;
+        }
+        .fc-button:hover {
+            background-color: var(--primary-dark) !important;
+        }
+        .fc-event {
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .fc-event.status-planned {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        .fc-event.status-completed {
+            background-color: var(--success-color);
+            border-color: var(--success-color);
+        }
+        .fc-event.status-cancelled {
+            background-color: var(--danger-color);
+            border-color: var(--danger-color);
+            text-decoration: line-through;
+        }
+        .fc-daygrid-day.fc-day-today {
+            background-color: var(--primary-light) !important;
+        }
+        
+        /* Time badge */
+        .time-badge {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 6px 12px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        /* Mini calendar */
+        #miniCalendar .fc-toolbar {
+            margin-bottom: 10px !important;
+        }
+        #miniCalendar .fc-toolbar-title {
+            font-size: 14px !important;
+        }
+        #miniCalendar .fc-button {
+            padding: 2px 6px !important;
+            font-size: 11px !important;
+        }
+        #miniCalendar .fc-daygrid-day-number {
+            font-size: 12px;
+        }
+        #miniCalendar .fc-event {
+            font-size: 9px;
+            padding: 1px 3px;
+        }
+        #miniCalendar .fc-daygrid-day-frame {
+            min-height: 50px;
+        }
+    </style>
+    
+    <script>
+        let calendar, miniCalendar;
+        const lessons = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Lessons));
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const events = lessons.map(l => ({
+                id: l.id,
+                title: l.groupName,
+                start: l.date + 'T' + l.startTime,
+                end: l.date + 'T' + l.endTime,
+                className: 'status-' + l.status.toLowerCase(),
+                extendedProps: {
+                    groupId: l.groupId,
+                    teacherName: l.teacherName,
+                    roomName: l.roomName,
+                    status: l.status,
+                    topic: l.topic
+                }
+            }));
+            
+            // Основной календарь
+            const calendarEl = document.getElementById('calendar');
+            calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'ru',
+                initialView: 'dayGridMonth',
+                headerToolbar: false,
+                events: events,
+                eventClick: function(info) {
+                    showLessonDetails(info.event);
+                },
+                datesSet: function(info) {
+                    document.getElementById('calendarTitle').textContent = 
+                        info.view.title.charAt(0).toUpperCase() + info.view.title.slice(1);
+                },
+                height: 'auto'
+            });
+            calendar.render();
+            
+            // Мини-календарь
+            const miniCalendarEl = document.getElementById('miniCalendar');
+            miniCalendar = new FullCalendar.Calendar(miniCalendarEl, {
+                locale: 'ru',
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev',
+                    center: 'title',
+                    right: 'next'
+                },
+                events: events,
+                dateClick: function(info) {
+                    calendar.gotoDate(info.date);
+                    calendar.changeView('timeGridDay');
+                },
+                height: 'auto',
+                fixedWeekCount: false
+            });
+            miniCalendar.render();
+            
+            // Фильтры
+            document.getElementById('groupFilter').addEventListener('change', applyFilters);
+            document.getElementById('teacherFilter').addEventListener('change', applyFilters);
+        });
+        
+        function applyFilters() {
+            const groupId = document.getElementById('groupFilter').value;
+            const teacherName = document.getElementById('teacherFilter').selectedOptions[0]?.text || '';
+            
+            calendar.getEvents().forEach(event => {
+                const matchGroup = groupId === '' || event.extendedProps.groupId === groupId;
+                const matchTeacher = teacherName === 'Все преподаватели' || teacherName === '' || 
+                                    event.extendedProps.teacherName === teacherName;
+                
+                event.setProp('display', (matchGroup && matchTeacher) ? 'auto' : 'none');
+            });
+        }
+        
+        function showLessonDetails(event) {
+            const props = event.extendedProps;
+            const statusBadge = {
+                'planned': '<span class="badge bg-primary">Запланировано</span>',
+                'inprogress': '<span class="badge bg-warning">Идёт</span>',
+                'completed': '<span class="badge bg-success">Завершено</span>',
+                'cancelled': '<span class="badge bg-danger">Отменено</span>'
+            };
+            
+            document.getElementById('lessonModalTitle').textContent = event.title;
+            document.getElementById('lessonModalBody').innerHTML = `
+                <div class="mb-3">
+                    ${statusBadge[props.status.toLowerCase()] || ''}
+                </div>
+                <div class="row">
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-muted">Дата</label>
+                        <div><i class="bi bi-calendar me-2"></i>${new Date(event.start).toLocaleDateString('ru-RU')}</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-muted">Время</label>
+                        <div><i class="bi bi-clock me-2"></i>${event.start.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})} - ${event.end.toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-muted">Преподаватель</label>
+                        <div><i class="bi bi-person me-2"></i>${props.teacherName || '—'}</div>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <label class="form-label text-muted">Кабинет</label>
+                        <div><i class="bi bi-building me-2"></i>${props.roomName || '—'}</div>
+                    </div>
+                </div>
+                ${props.topic ? `<div class="mb-3"><label class="form-label text-muted">Тема</label><div>${props.topic}</div></div>` : ''}
+            `;
+            
+            document.getElementById('btnAttendance').href = '/Lessons/Attendance?lessonId=' + event.id;
+            document.getElementById('btnGrades').href = '/Lessons/Grades?lessonId=' + event.id;
+            
+            new bootstrap.Modal(document.getElementById('lessonModal')).show();
+        }
+    </script>
+}

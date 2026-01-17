@@ -6,9 +6,9 @@ namespace RazorWebApp.Services;
 // Сервис для работы с родителями
 public class ParentsService(ApiClient apiClient)
 {
-    public async Task<PagedResponse<ParentViewModel>?> ListAsync(string? search = null, int page = 1)
+    public async Task<PagedResponse<ParentViewModel>?> ListAsync(string? search = null, int page = 1, int pageSize = 12)
     {
-        var url = $"/api/v1/parents?page={page}&pageSize=20";
+        var url = $"/api/v1/parents?page={page}&pageSize={pageSize}";
         
         if (!string.IsNullOrEmpty(search))
             url += $"&search={Uri.EscapeDataString(search)}";

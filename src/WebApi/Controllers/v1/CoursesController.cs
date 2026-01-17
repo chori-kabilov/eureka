@@ -8,7 +8,6 @@ using Application.Modules.Courses.UseCases.ListCourses;
 using Application.Modules.Courses.UseCases.UpdateCourse;
 using Domain.Courses;
 using Microsoft.AspNetCore.Mvc;
-using WebApi.Contracts.Courses;
 using WebApi.Extensions;
 using WebApi.Contracts.Common;
 
@@ -76,18 +75,9 @@ public class CoursesController(
     // POST /api/v1/courses
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] CreateCourseApiRequest apiRequest,
+        [FromBody] CreateCourseRequest request,
         CancellationToken ct)
     {
-        var request = new CreateCourseRequest
-        {
-            Name = apiRequest.Name,
-            Description = apiRequest.Description,
-            StudentPaymentType = apiRequest.StudentPaymentType,
-            AbsencePolicy = apiRequest.AbsencePolicy,
-            TeacherPaymentType = apiRequest.TeacherPaymentType
-        };
-
         var result = await createHandler.HandleAsync(request, ct);
 
         if (result.IsSuccess)
@@ -101,19 +91,10 @@ public class CoursesController(
     [HttpPut("{id:guid}")]
     public async Task<IActionResult> Update(
         Guid id,
-        [FromBody] UpdateCourseApiRequest apiRequest,
+        [FromBody] UpdateCourseRequest request,
         CancellationToken ct)
     {
-        var request = new UpdateCourseRequest
-        {
-            Id = id,
-            Name = apiRequest.Name,
-            Description = apiRequest.Description,
-            StudentPaymentType = apiRequest.StudentPaymentType,
-            AbsencePolicy = apiRequest.AbsencePolicy,
-            TeacherPaymentType = apiRequest.TeacherPaymentType
-        };
-
+        request.Id = id;
         var result = await updateHandler.HandleAsync(request, ct);
         return result.ToActionResult();
     }

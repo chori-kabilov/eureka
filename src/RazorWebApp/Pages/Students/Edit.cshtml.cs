@@ -18,11 +18,17 @@ public class EditModel : PageModel
 
     public StudentViewModel? Student { get; set; }
 
-    [BindProperty]
+[BindProperty]
     public int Status { get; set; }
 
     [BindProperty]
     public string? Notes { get; set; }
+
+    [BindProperty]
+    public string FullName { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string Phone { get; set; } = string.Empty;
 
     public string? SuccessMessage { get; set; }
     public string? ErrorMessage { get; set; }
@@ -37,13 +43,15 @@ public class EditModel : PageModel
         Student = response.Data;
         Status = Student.Status;
         Notes = Student.Notes;
+        FullName = Student.FullName;
+        Phone = Student.Phone;
         
         return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(Guid id)
     {
-        var result = await _studentsService.UpdateAsync(id, Status, Notes);
+        var result = await _studentsService.UpdateAsync(id, FullName, Phone, Status, Notes);
 
         if (result?.Success == true)
         {

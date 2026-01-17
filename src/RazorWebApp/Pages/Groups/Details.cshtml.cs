@@ -196,6 +196,19 @@ public class LessonListViewModel
     public int Type { get; set; }
     public int Status { get; set; }
     public string TeacherName { get; set; } = string.Empty;
+    public string? RoomName { get; set; }
+
+    public string DayName => Date.DayOfWeek switch
+    {
+        DayOfWeek.Monday => "Пн",
+        DayOfWeek.Tuesday => "Вт",
+        DayOfWeek.Wednesday => "Ср",
+        DayOfWeek.Thursday => "Чт",
+        DayOfWeek.Friday => "Пт",
+        DayOfWeek.Saturday => "Сб",
+        DayOfWeek.Sunday => "Вс",
+        _ => ""
+    };
 
     public string TypeName => Type switch
     {
