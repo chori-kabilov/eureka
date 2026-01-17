@@ -13,6 +13,7 @@ public static class StudentMapper
         FullName = student.User?.FullName ?? string.Empty,
         Phone = student.User?.Phone ?? string.Empty,
         Status = student.Status,
+        Notes = student.Notes,
         CreatedAt = student.CreatedAt
     };
 

@@ -25,6 +25,7 @@ public class UsersController(
     public async Task<IActionResult> List(
         [FromQuery] string? search,
         [FromQuery] bool? isAdmin,
+        [FromQuery] bool? hasStudent,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken ct = default)
@@ -33,6 +34,7 @@ public class UsersController(
         {
             Search = search,
             IsAdmin = isAdmin,
+            HasStudent = hasStudent,
             Page = page,
             PageSize = pageSize
         };

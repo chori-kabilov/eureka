@@ -8,69 +8,76 @@
     <div class="d-flex justify-content-between align-items-center">
         <div>
             <h1 class="page-title">Преподаватели</h1>
-            <p class="page-subtitle">Управление преподавателями</p>
+            <p class="page-subtitle">Управление преподавателями учебного центра</p>
         </div>
-        <a asp-page="/Teachers/Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i> Добавить преподавателя
-        </a>
+        <button type="button" class="btn btn-primary d-flex flex-column align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
+            <span><i class="bi bi-person-plus me-1"></i> Добавить преподавателя</span>
+            <small class="text-light opacity-75" style="font-size: 0.7rem;">из пользователей</small>
+        </button>
     </div>
 </div>
 
-<!-- Фильтры -->
-<div class="card mb-4">
-    <div class="card-body py-3">
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label">Поиск</label>
-                <input type="text" name="search" class="form-control" placeholder="Имя или телефон..." value="@Model.Search" />
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search me-1"></i> Искать
-                </button>
-            </div>
-        </form>
+<div class="mb-4 d-flex flex-wrap align-items-center gap-3">
+    <div class="position-relative" style="min-width: 280px;">
+        <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 12px;"></i>
+        <input type="text" id="teacherSearch" class="form-control ps-5" 
+               placeholder="Поиск по имени или телефону..." 
+               value="@Model.Search" autocomplete="off" />
+        <button type="button" id="clearSearch" class="btn btn-sm position-absolute top-50 translate-middle-y" 
+                style="right: 4px; display: none;">
+            <i class="bi bi-x-lg text-muted"></i>
+        </button>
+    </div>
+    
+    <div class="status-filters d-flex gap-2 flex-wrap">
+        <button type="button" class="status-chip active" data-payment="all">
+            <i class="bi bi-people me-1"></i> Все
+        </button>
+        <button type="button" class="status-chip" data-payment="0">
+            <span class="status-dot bg-success"></span> Почасовая
+        </button>
+        <button type="button" class="status-chip" data-payment="1">
+            <span class="status-dot bg-primary"></span> За занятие
+        </button>
+        <button type="button" class="status-chip" data-payment="2">
+            <span class="status-dot bg-warning"></span> Оклад
+        </button>
     </div>
 </div>
 
-<!-- Карточки преподавателей -->
-<div class="row">
+<div class="row" id="teachersGrid">
     @if (Model.Teachers?.Items?.Any() == true)
     {
         @foreach (var t in Model.Teachers.Items)
         {
             <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
-                <div class="card h-100">
+                <div class="card teacher-card h-100" 
+                     data-bs-toggle="modal" data-bs-target="#teacherModal"
+                     data-id="@t.Id"
+                     data-name="@t.FullName"
+                     data-phone="@t.Phone"
+                     data-status="@t.Status"
+                     data-status-name="@t.StatusName"
+                     data-subjects="@t.SubjectsDisplay"
+                     data-payment-type="@t.PaymentType"
+                     data-payment-name="@t.PaymentTypeName"
+                     data-hourly-rate="@(t.HourlyRate ?? 0)"
+                     data-bio="@(t.Bio ?? "")"
+                     data-hired="@(t.HiredAt?.ToString("dd.MM.yyyy") ?? "—")"
+                     data-created="@t.CreatedAt.ToString("dd.MM.yyyy")">
                     <div class="card-body">
-                        <div class="d-flex align-items-start justify-content-between mb-3">
-                            <div class="stat-icon green" style="width: 48px; height: 48px; font-size: 20px; border-radius: 50%;">
-                                <i class="bi bi-person-workspace"></i>
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="teacher-avatar">@t.FullName.FirstOrDefault()</div>
+                            <div class="min-w-0 flex-fill">
+                                <h6 class="mb-0 text-truncate fw-semibold">@t.FullName</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-telephone me-1"></i>@t.Phone
+                                </small>
                             </div>
-                            <span class="badge bg-primary">@(t.Specialization ?? "—")</span>
+                            <span class="badge @t.StatusClass">@t.StatusName</span>
                         </div>
-                        <h5 class="fw-semibold mb-1">@t.FullName</h5>
-                        <p class="text-muted small mb-3">
-                            <i class="bi bi-telephone me-1"></i>@t.Phone
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <div class="text-muted small">
-                                <i class="bi bi-cash me-1"></i>@t.PaymentTypeName
-                            </div>
-                            @if (t.HourlyRate > 0)
-                            {
-                                <span class="fw-semibold text-success">@t.HourlyRate?.ToString("N0") ₸</span>
-                            }
-                        </div>
-                        <div class="d-flex gap-1">
-                            <a asp-page="/Teachers/Edit" asp-route-id="@t.Id" class="btn btn-sm btn-outline-primary flex-fill">
-                                <i class="bi bi-pencil me-1"></i> Редактировать
-                            </a>
-                            <form method="post" asp-page-handler="Delete" asp-route-id="@t.Id"
-                                  onsubmit="return confirm('Удалить преподавателя @t.FullName?');" style="display: inline;">
-                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </form>
+                        <div class="text-muted small text-truncate">
+                            <i class="bi bi-book me-1"></i>@t.SubjectsDisplay
                         </div>
                     </div>
                 </div>
@@ -86,9 +93,6 @@
                         <i class="bi bi-person-workspace"></i>
                         <h5>Нет преподавателей</h5>
                         <p>Добавьте первого преподавателя</p>
-                        <a asp-page="/Teachers/Create" class="btn btn-primary mt-2">
-                            <i class="bi bi-plus-lg me-1"></i> Добавить преподавателя
-                        </a>
                     </div>
                 </div>
             </div>
@@ -96,29 +100,539 @@
     }
 </div>
 
-@if ((Model.Teachers?.TotalPages ?? 0) > 1 || Model.PageSize != 12)
-{
-    <nav class="mt-4">
-        <div class="d-flex justify-content-center align-items-center gap-3">
-            <div class="d-flex align-items-center gap-2">
-                <span class="text-muted small">Показывать:</span>
-                <select class="form-select form-select-sm" style="width: auto;" onchange="window.location.href='?currentPage=1&search=@Model.Search&pageSize=' + this.value">
-                    <option value="12" selected="@(Model.PageSize == 12)">12</option>
-                    <option value="24" selected="@(Model.PageSize == 24)">24</option>
-                    <option value="50" selected="@(Model.PageSize == 50)">50</option>
-                </select>
+<!-- Модальное окно преподавателя -->
+<div class="modal fade" id="teacherModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- ViewMode -->
+            <div id="viewMode">
+                <div class="modal-header border-0 pb-0">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="teacher-avatar-xl" id="modalAvatar">T</div>
+                        <div>
+                            <h5 class="modal-title mb-1" id="modalName">—</h5>
+                            <p class="text-muted mb-0" id="modalPhone">—</p>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <span class="badge" id="modalStatusBadge">Активный</span>
+                    </div>
+                    <div class="info-grid">
+                        <div class="info-card">
+                            <span class="info-label">Предметы</span>
+                            <span class="info-value" id="modalSubjects">—</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Тип оплаты</span>
+                            <span class="info-value" id="modalPaymentName">—</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Ставка</span>
+                            <span class="info-value" id="modalRate">—</span>
+                        </div>
+                        <div class="info-card">
+                            <span class="info-label">Работает с</span>
+                            <span class="info-value" id="modalHired">—</span>
+                        </div>
+                    </div>
+                    <div class="mt-3" id="bioSection" style="display: none;">
+                        <span class="info-label">О преподавателе</span>
+                        <p class="mb-0 mt-1" id="modalBio">—</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-primary" onclick="enterEditMode()">
+                        <i class="bi bi-pencil me-1"></i> Редактировать
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" onclick="enterDeleteMode()">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
             </div>
-            @if ((Model.Teachers?.TotalPages ?? 0) > 1)
-            {
-                <ul class="pagination mb-0">
-                    @for (int i = 1; i <= Model.Teachers!.TotalPages; i++)
-                    {
-                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
-                            <a class="page-link" asp-page="/Teachers/Index" asp-route-currentPage="@i" asp-route-search="@Model.Search" asp-route-pageSize="@Model.PageSize">@i</a>
-                        </li>
-                    }
-                </ul>
-            }
+
+            <!-- EditMode -->
+            <div id="editMode" style="display: none;">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Редактирование</h5>
+                    <button type="button" class="btn-close" onclick="exitEditMode()"></button>
+                </div>
+                <form method="post" asp-page-handler="Update">
+                    <input type="hidden" name="id" id="editId" />
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">ФИО</label>
+                                <input type="text" name="fullName" id="editFullName" class="form-control" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Телефон</label>
+                                <input type="text" name="phone" id="editPhone" class="form-control" required />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Статус</label>
+                                <select name="status" id="editStatus" class="form-select">
+                                    <option value="0">Активный</option>
+                                    <option value="1">На паузе</option>
+                                    <option value="2">Завершил работу</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Тип оплаты</label>
+                                <select name="paymentType" id="editPaymentType" class="form-select">
+                                    <option value="0">Почасовая</option>
+                                    <option value="1">За занятие</option>
+                                    <option value="2">Оклад</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Предметы <small class="text-muted">(через запятую)</small></label>
+                                <input type="text" name="subjects" id="editSubjects" class="form-control" placeholder="Математика, Физика" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Ставка (₸)</label>
+                                <input type="number" name="hourlyRate" id="editRate" class="form-control" step="100" />
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">О преподавателе</label>
+                                <textarea name="bio" id="editBio" class="form-control" rows="2"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-lg me-1"></i> Сохранить
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="exitEditMode()">Отмена</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- DeleteMode -->
+            <div id="deleteMode" style="display: none;">
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-exclamation-triangle text-danger" style="font-size: 48px;"></i>
+                    <h5 class="mt-3">Удалить преподавателя?</h5>
+                    <p class="text-muted mb-0" id="deleteTeacherName">—</p>
+                </div>
+                <div class="modal-footer border-0 pt-0 justify-content-center gap-2">
+                    <form method="post" asp-page-handler="Delete" id="deleteForm">
+                        <input type="hidden" name="id" id="deleteId" />
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash me-1"></i> Да, удалить
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-secondary" onclick="exitDeleteMode()">Отмена</button>
+                </div>
+            </div>
         </div>
-    </nav>
+    </div>
+</div>
+
+<!-- Модальное окно создания -->
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-plus me-2"></i>Добавить преподавателя
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="Create" id="createTeacherForm">
+                <input type="hidden" name="userId" id="selectedUserId" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Поиск пользователя</label>
+                        <div class="position-relative">
+                            <input type="text" id="userSearchInput" class="form-control" 
+                                   placeholder="Введите имя или телефон..." autocomplete="off" />
+                            <div id="userSearchResults" class="user-search-results"></div>
+                        </div>
+                        <div id="selectedUserDisplay" class="selected-user-card mt-2" style="display: none;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-sm" id="selectedUserAvatar">U</div>
+                                    <div>
+                                        <div class="fw-medium" id="selectedUserName">—</div>
+                                        <small class="text-muted" id="selectedUserPhone">—</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelectedUser()">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label class="form-label">Специализация</label>
+                            <input type="text" name="specialization" class="form-control" placeholder="Математика..." />
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label">Тип оплаты</label>
+                            <select name="paymentType" class="form-select">
+                                <option value="0">Почасовая</option>
+                                <option value="1">За занятие</option>
+                                <option value="2">Оклад</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Ставка (₸)</label>
+                            <input type="number" name="hourlyRate" class="form-control" step="100" placeholder="5000" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">О преподавателе</label>
+                            <textarea name="bio" class="form-control" rows="2" placeholder="Опыт, образование..."></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" id="btnCreateTeacher" disabled>
+                        <i class="bi bi-check-lg me-1"></i> Добавить
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.teacher-card {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.teacher-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.teacher-avatar {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+}
+.teacher-avatar-xl {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    font-weight: 600;
+}
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+.info-card {
+    background: var(--bg-color);
+    border-radius: 8px;
+    padding: 12px;
+}
+.info-label {
+    font-size: 12px;
+    color: #6c757d;
+    display: block;
+    margin-bottom: 4px;
+}
+.info-value {
+    font-size: 14px;
+    color: var(--text-color);
+}
+.status-chip {
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    background: white;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.status-chip:hover {
+    border-color: #aaa;
+    background: #f8f9fa;
+}
+.status-chip.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.user-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+.user-search-results.show {
+    display: block;
+}
+.user-search-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+.user-search-item:last-child {
+    border-bottom: none;
+}
+.user-search-item:hover {
+    background: #f8f9fa;
+}
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+.selected-user-card {
+    background: #e8f4fd;
+    border: 1px solid #b3d7f5;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+.min-w-0 {
+    min-width: 0;
+}
+</style>
+
+@section Scripts {
+<script>
+let currentTeacherData = {};
+let currentPaymentFilter = 'all';
+
+// Live Search
+const teacherSearch = document.getElementById('teacherSearch');
+const clearSearchBtn = document.getElementById('clearSearch');
+const teacherCards = document.querySelectorAll('.teacher-card');
+const paymentChips = document.querySelectorAll('.status-chip');
+let searchDebounce = null;
+
+function filterCards() {
+    const query = teacherSearch.value.toLowerCase().trim();
+    
+    teacherCards.forEach(card => {
+        const name = (card.dataset.name || '').toLowerCase();
+        const phone = (card.dataset.phone || '').toLowerCase();
+        const paymentType = card.dataset.paymentType || '0';
+        const parent = card.closest('.col-md-6');
+        
+        const matchesSearch = query === '' || name.includes(query) || phone.includes(query);
+        const matchesPayment = currentPaymentFilter === 'all' || paymentType === currentPaymentFilter;
+        
+        parent.style.display = (matchesSearch && matchesPayment) ? '' : 'none';
+    });
+}
+
+teacherSearch.addEventListener('input', function() {
+    clearSearchBtn.style.display = this.value.length > 0 ? 'block' : 'none';
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(filterCards, 150);
+});
+
+clearSearchBtn.addEventListener('click', function() {
+    teacherSearch.value = '';
+    this.style.display = 'none';
+    filterCards();
+});
+
+paymentChips.forEach(chip => {
+    chip.addEventListener('click', function() {
+        paymentChips.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        currentPaymentFilter = this.dataset.payment;
+        filterCards();
+    });
+});
+
+// Modal
+document.getElementById('teacherModal').addEventListener('show.bs.modal', function (event) {
+    const card = event.relatedTarget;
+    currentTeacherData = {
+        id: card.dataset.id,
+        name: card.dataset.name,
+        phone: card.dataset.phone,
+        status: card.dataset.status,
+        statusName: card.dataset.statusName,
+        subjects: card.dataset.subjects || '',
+        paymentType: card.dataset.paymentType,
+        paymentName: card.dataset.paymentName,
+        hourlyRate: card.dataset.hourlyRate,
+        bio: card.dataset.bio || '',
+        hired: card.dataset.hired || '—',
+        created: card.dataset.created
+    };
+    showViewMode();
+});
+
+function showViewMode() {
+    document.getElementById('viewMode').style.display = 'block';
+    document.getElementById('editMode').style.display = 'none';
+    document.getElementById('deleteMode').style.display = 'none';
+    
+    const d = currentTeacherData;
+    document.getElementById('modalAvatar').textContent = d.name.charAt(0).toUpperCase();
+    document.getElementById('modalName').textContent = d.name;
+    document.getElementById('modalPhone').textContent = d.phone;
+    
+    const statusBadge = document.getElementById('modalStatusBadge');
+    statusBadge.textContent = d.statusName;
+    statusBadge.className = 'badge ' + (d.status == 0 ? 'bg-success' : d.status == 1 ? 'bg-warning' : 'bg-secondary');
+    
+    document.getElementById('modalSubjects').textContent = d.subjects || '—';
+    document.getElementById('modalPaymentName').textContent = d.paymentName;
+    document.getElementById('modalRate').textContent = d.hourlyRate > 0 ? d.hourlyRate + ' ₸' : '—';
+    document.getElementById('modalHired').textContent = d.hired;
+    
+    const bioSection = document.getElementById('bioSection');
+    if (d.bio) {
+        bioSection.style.display = 'block';
+        document.getElementById('modalBio').textContent = d.bio;
+    } else {
+        bioSection.style.display = 'none';
+    }
+}
+
+function enterEditMode() {
+    document.getElementById('viewMode').style.display = 'none';
+    document.getElementById('editMode').style.display = 'block';
+    
+    const d = currentTeacherData;
+    document.getElementById('editId').value = d.id;
+    document.getElementById('editFullName').value = d.name;
+    document.getElementById('editPhone').value = d.phone;
+    document.getElementById('editStatus').value = d.status;
+    document.getElementById('editSubjects').value = d.subjects;
+    document.getElementById('editPaymentType').value = d.paymentType;
+    document.getElementById('editRate').value = d.hourlyRate > 0 ? d.hourlyRate : '';
+    document.getElementById('editBio').value = d.bio;
+}
+
+function exitEditMode() {
+    showViewMode();
+}
+
+function enterDeleteMode() {
+    document.getElementById('viewMode').style.display = 'none';
+    document.getElementById('deleteMode').style.display = 'block';
+    
+    document.getElementById('deleteId').value = currentTeacherData.id;
+    document.getElementById('deleteTeacherName').textContent = currentTeacherData.name;
+}
+
+function exitDeleteMode() {
+    showViewMode();
+}
+
+document.getElementById('teacherModal').addEventListener('hidden.bs.modal', function () {
+    showViewMode();
+});
+
+// Autocomplete для создания
+const availableUsers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AvailableUsers.Select(u => new { u.Id, u.FullName, u.Phone })));
+let userSearchTimeout = null;
+
+document.getElementById('userSearchInput').addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    const resultsDiv = document.getElementById('userSearchResults');
+    
+    clearTimeout(userSearchTimeout);
+    
+    if (query.length < 1) {
+        resultsDiv.classList.remove('show');
+        return;
+    }
+    
+    userSearchTimeout = setTimeout(() => {
+        const filtered = availableUsers.filter(u => 
+            u.FullName.toLowerCase().includes(query) || 
+            u.Phone.includes(query)
+        ).slice(0, 10);
+        
+        if (filtered.length === 0) {
+            resultsDiv.innerHTML = '<div class="p-3 text-muted text-center">Не найдено</div>';
+        } else {
+            resultsDiv.innerHTML = filtered.map(u => `
+                <div class="user-search-item" onclick="selectUser('${u.Id}', '${u.FullName}', '${u.Phone}')">
+                    <div class="user-avatar-sm">${u.FullName.charAt(0).toUpperCase()}</div>
+                    <div>
+                        <div class="fw-medium">${u.FullName}</div>
+                        <small class="text-muted">${u.Phone}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        resultsDiv.classList.add('show');
+    }, 200);
+});
+
+function selectUser(id, name, phone) {
+    document.getElementById('selectedUserId').value = id;
+    document.getElementById('selectedUserName').textContent = name;
+    document.getElementById('selectedUserPhone').textContent = phone;
+    document.getElementById('selectedUserAvatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('selectedUserDisplay').style.display = 'block';
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('userSearchResults').classList.remove('show');
+    document.getElementById('btnCreateTeacher').disabled = false;
+}
+
+function clearSelectedUser() {
+    document.getElementById('selectedUserId').value = '';
+    document.getElementById('selectedUserDisplay').style.display = 'none';
+    document.getElementById('btnCreateTeacher').disabled = true;
+}
+
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#userSearchInput') && !e.target.closest('#userSearchResults')) {
+        document.getElementById('userSearchResults').classList.remove('show');
+    }
+});
+
+document.getElementById('createModal').addEventListener('hidden.bs.modal', function() {
+    clearSelectedUser();
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('createTeacherForm').reset();
+});
+</script>
 }

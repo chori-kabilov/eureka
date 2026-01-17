@@ -22,7 +22,7 @@ public class CreateModel : PageModel
     public Guid UserId { get; set; }
 
     [BindProperty]
-    public string? Specialization { get; set; }
+    public string Subjects { get; set; } = string.Empty;
 
     [BindProperty]
     public int PaymentType { get; set; }
@@ -50,7 +50,11 @@ public class CreateModel : PageModel
             return Page();
         }
 
-        var result = await _teachersService.CreateAsync(UserId, Specialization, PaymentType, HourlyRate, Bio);
+        var subjectsList = string.IsNullOrWhiteSpace(Subjects) 
+            ? new List<string>() 
+            : Subjects.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+
+        var result = await _teachersService.CreateAsync(UserId, subjectsList, PaymentType, HourlyRate, Bio);
 
         if (result?.Success == true)
             return RedirectToPage("/Teachers/Index");
@@ -62,8 +66,7 @@ public class CreateModel : PageModel
 
     private async Task LoadAvailableUsers()
     {
-        // Загружаем пользователей без профиля учителя
-        var users = await _usersService.ListAsync(null, null, 1);
+        var users = await _usersService.ListAsync(pageSize: 100);
         if (users?.Items != null)
         {
             AvailableUsers = users.Items.Where(u => !u.IsTeacher).ToList();

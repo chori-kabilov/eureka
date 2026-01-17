@@ -1,4 +1,4 @@
-using Application.Abstractions;
+﻿using Application.Abstractions;
 using Application.Common;
 using Application.Modules.Teachers.Dtos;
 using Application.Modules.Teachers.Mapping;
@@ -17,20 +17,17 @@ public class ListTeachersHandler(IDataContext db)
             .Include(t => t.User)
             .AsQueryable();
 
-        // Фильтр по поиску
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var search = request.Search.ToLower();
             query = query.Where(t => 
                 t.User!.Phone.ToLower().Contains(search) ||
                 t.User.FullName.ToLower().Contains(search) ||
-                (t.Specialization != null && t.Specialization.ToLower().Contains(search)));
+                t.Subjects.Any(s => s.ToLower().Contains(search)));
         }
 
-        // Подсчёт
         var totalCount = await query.CountAsync(ct);
 
-        // Пагинация
         var skip = (request.Page - 1) * request.PageSize;
         var teachers = await query
             .OrderByDescending(t => t.CreatedAt)

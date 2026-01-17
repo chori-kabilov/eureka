@@ -12,6 +12,7 @@ public class User : BaseEntity
     public string Phone { get; set; } = string.Empty;
     public string FullName { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
+    public DateTime? BirthDate { get; set; }
     
     // Профили (один User может иметь несколько)
     public Admin? AdminProfile { get; set; }

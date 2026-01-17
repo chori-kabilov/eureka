@@ -54,10 +54,7 @@ public class CreateModel : PageModel
     private async Task LoadAvailableUsers()
     {
         // Загружаем пользователей без студенческого профиля
-        var users = await _usersService.ListAsync(null, null, 1);
-        if (users?.Items != null)
-        {
-            AvailableUsers = users.Items.Where(u => !u.IsStudent).ToList();
-        }
+        var users = await _usersService.ListAsync(hasStudent: false, pageSize: 100);
+        AvailableUsers = users?.Items ?? new List<UserViewModel>();
     }
 }

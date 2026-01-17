@@ -1,4 +1,4 @@
-using Application.Abstractions;
+﻿using Application.Abstractions;
 using Application.Common;
 using Application.Modules.Teachers.Dtos;
 using Application.Modules.Teachers.Mapping;
@@ -21,8 +21,20 @@ public class UpdateTeacherHandler(IDataContext db)
         if (teacher == null)
             return Result<TeacherDetailDto>.Failure(Error.NotFound("Учитель"));
 
-        if (request.Specialization != null)
-            teacher.Specialization = request.Specialization;
+        if (!string.IsNullOrEmpty(request.FullName) && teacher.User != null)
+            teacher.User.FullName = request.FullName;
+        
+        if (!string.IsNullOrEmpty(request.Phone) && teacher.User != null)
+            teacher.User.Phone = request.Phone;
+
+        if (teacher.User != null)
+            teacher.User.UpdatedAt = DateTime.UtcNow;
+
+        if (request.Status.HasValue)
+            teacher.Status = (TeacherStatus)request.Status.Value;
+
+        if (request.Subjects != null)
+            teacher.Subjects = request.Subjects;
         
         if (request.PaymentType.HasValue)
             teacher.PaymentType = (TeacherPaymentType)request.PaymentType.Value;

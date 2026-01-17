@@ -29,11 +29,15 @@ public class UpdateStudentHandler(IDataContext db)
         if (!string.IsNullOrEmpty(request.Phone) && student.User != null)
             student.User.Phone = request.Phone;
 
+        // Помечаем User как изменённый
+        if (student.User != null)
+            student.User.UpdatedAt = DateTime.UtcNow;
+
         if (request.Status.HasValue)
             student.Status = (StudentStatus)request.Status.Value;
         
-        if (request.Notes != null)
-            student.Notes = request.Notes;
+        // Всегда обновляем Notes (пустая строка = null)
+        student.Notes = string.IsNullOrWhiteSpace(request.Notes) ? null : request.Notes;
 
         student.UpdatedAt = DateTime.UtcNow;
 

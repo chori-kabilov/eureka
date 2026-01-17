@@ -22,12 +22,12 @@ public class TeachersService(ApiClient apiClient)
     }
 
     public async Task<ApiResponse<TeacherViewModel>?> CreateAsync(
-        Guid userId, string? specialization, int paymentType, decimal? hourlyRate, string? bio)
+        Guid userId, List<string> subjects, int paymentType, decimal? hourlyRate, string? bio)
     {
         var request = new 
         { 
             UserId = userId, 
-            Specialization = specialization, 
+            Subjects = subjects, 
             PaymentType = paymentType,
             HourlyRate = hourlyRate,
             Bio = bio
@@ -36,11 +36,14 @@ public class TeachersService(ApiClient apiClient)
     }
 
     public async Task<ApiResponse<TeacherViewModel>?> UpdateAsync(
-        Guid id, string? specialization, int paymentType, decimal? hourlyRate, string? bio)
+        Guid id, string fullName, string phone, int status, List<string> subjects, int paymentType, decimal? hourlyRate, string? bio)
     {
         var request = new 
         { 
-            Specialization = specialization, 
+            FullName = fullName,
+            Phone = phone,
+            Status = status,
+            Subjects = subjects, 
             PaymentType = paymentType,
             HourlyRate = hourlyRate,
             Bio = bio
@@ -53,3 +56,4 @@ public class TeachersService(ApiClient apiClient)
         return await apiClient.DeleteAsync($"/api/v1/teachers/{id}");
     }
 }
+

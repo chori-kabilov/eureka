@@ -19,7 +19,16 @@ public class EditModel : PageModel
     public TeacherViewModel? Teacher { get; set; }
 
     [BindProperty]
-    public string? Specialization { get; set; }
+    public string FullName { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string Phone { get; set; } = string.Empty;
+
+    [BindProperty]
+    public int Status { get; set; }
+
+    [BindProperty]
+    public string Subjects { get; set; } = string.Empty;
 
     [BindProperty]
     public int PaymentType { get; set; }
@@ -41,7 +50,10 @@ public class EditModel : PageModel
             return RedirectToPage("/Teachers/Index");
 
         Teacher = response.Data;
-        Specialization = Teacher.Specialization;
+        FullName = Teacher.FullName;
+        Phone = Teacher.Phone;
+        Status = Teacher.Status;
+        Subjects = string.Join(", ", Teacher.Subjects);
         PaymentType = Teacher.PaymentType;
         HourlyRate = Teacher.HourlyRate;
         Bio = Teacher.Bio;
@@ -51,7 +63,11 @@ public class EditModel : PageModel
 
     public async Task<IActionResult> OnPostAsync(Guid id)
     {
-        var result = await _teachersService.UpdateAsync(id, Specialization, PaymentType, HourlyRate, Bio);
+        var subjectsList = string.IsNullOrWhiteSpace(Subjects) 
+            ? new List<string>() 
+            : Subjects.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(s => s.Trim()).ToList();
+            
+        var result = await _teachersService.UpdateAsync(id, FullName, Phone, Status, subjectsList, PaymentType, HourlyRate, Bio);
 
         if (result?.Success == true)
         {

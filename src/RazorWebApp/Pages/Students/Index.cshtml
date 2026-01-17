@@ -10,31 +10,41 @@
             <h1 class="page-title">Студенты</h1>
             <p class="page-subtitle">Управление студентами учебного центра</p>
         </div>
-        <a asp-page="/Students/Create" class="btn btn-primary">
-            <i class="bi bi-plus-lg me-1"></i> Добавить студента
-        </a>
+        <button type="button" class="btn btn-primary d-flex flex-column align-items-center" data-bs-toggle="modal" data-bs-target="#createModal">
+            <span><i class="bi bi-person-plus me-1"></i> Добавить студента</span>
+            <small class="text-light opacity-75" style="font-size: 0.7rem;">из пользователей</small>
+        </button>
     </div>
 </div>
 
-<div class="card mb-4">
-    <div class="card-body py-3">
-        <form method="get" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label">Поиск</label>
-                <input type="text" name="search" class="form-control" placeholder="Имя или телефон..." value="@Model.Search" />
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-search me-1"></i> Искать
-                </button>
-            </div>
-            @if (!string.IsNullOrEmpty(Model.Search))
-            {
-                <div class="col-md-2">
-                    <a asp-page="/Students/Index" class="btn btn-outline-secondary w-100">Сбросить</a>
-                </div>
-            }
-        </form>
+<div class="mb-4 d-flex flex-wrap align-items-center gap-3">
+    <div class="position-relative" style="min-width: 280px;">
+        <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 12px;"></i>
+        <input type="text" id="studentSearch" class="form-control ps-5" 
+               placeholder="Поиск по имени или телефону..." 
+               value="@Model.Search" autocomplete="off" />
+        <button type="button" id="clearSearch" class="btn btn-sm position-absolute top-50 translate-middle-y" 
+                style="right: 4px; display: none;">
+            <i class="bi bi-x-lg text-muted"></i>
+        </button>
+    </div>
+    
+    <div class="status-filters d-flex gap-2 flex-wrap">
+        <button type="button" class="status-chip active" data-status="all">
+            <i class="bi bi-people me-1"></i> Все
+        </button>
+        <button type="button" class="status-chip" data-status="0">
+            <span class="status-dot bg-success"></span> Активные
+        </button>
+        <button type="button" class="status-chip" data-status="1">
+            <span class="status-dot bg-secondary"></span> Неактивные
+        </button>
+        <button type="button" class="status-chip" data-status="2">
+            <span class="status-dot bg-info"></span> Закончили
+        </button>
+        <button type="button" class="status-chip" data-status="3">
+            <span class="status-dot bg-danger"></span> Отчислены
+        </button>
     </div>
 </div>
 
@@ -220,6 +230,56 @@
     </div>
 </div>
 
+<div class="modal fade" id="createModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-person-plus me-2"></i>Добавить студента
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post" asp-page-handler="Create" id="createStudentForm">
+                <input type="hidden" name="userId" id="selectedUserId" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Поиск пользователя</label>
+                        <div class="position-relative">
+                            <input type="text" id="userSearchInput" class="form-control" 
+                                   placeholder="Введите имя или телефон..." autocomplete="off" />
+                            <div id="userSearchResults" class="user-search-results"></div>
+                        </div>
+                        <div id="selectedUserDisplay" class="selected-user-card mt-2" style="display: none;">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="user-avatar-sm" id="selectedUserAvatar">U</div>
+                                    <div>
+                                        <div class="fw-medium" id="selectedUserName">—</div>
+                                        <small class="text-muted" id="selectedUserPhone">—</small>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearSelectedUser()">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Заметки</label>
+                        <textarea name="notes" id="createNotes" class="form-control" rows="2" placeholder="Заметки о студенте..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success" id="btnCreateStudent" disabled>
+                        <i class="bi bi-check-lg me-1"></i> Добавить
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Отмена</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <style>
 .student-card {
     cursor: pointer;
@@ -294,11 +354,151 @@
 .min-w-0 {
     min-width: 0;
 }
+
+.user-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.user-search-results.show {
+    display: block;
+}
+
+.user-search-item {
+    padding: 10px 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.user-search-item:last-child {
+    border-bottom: none;
+}
+
+.user-search-item:hover {
+    background: #f8f9fa;
+}
+
+.user-avatar-sm {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.selected-user-card {
+    background: #e8f4fd;
+    border: 1px solid #b3d7f5;
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.no-results {
+    padding: 12px;
+    text-align: center;
+    color: #6c757d;
+}
+
+.status-chip {
+    padding: 6px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 20px;
+    background: white;
+    font-size: 13px;
+    color: #555;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-chip:hover {
+    border-color: #aaa;
+    background: #f8f9fa;
+}
+
+.status-chip.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+}
 </style>
 
 @section Scripts {
 <script>
 let currentStudentData = {};
+let currentStatusFilter = 'all';
+
+// Live Search для карточек студентов
+const studentSearch = document.getElementById('studentSearch');
+const clearSearchBtn = document.getElementById('clearSearch');
+const studentCards = document.querySelectorAll('.student-card');
+const statusChips = document.querySelectorAll('.status-chip');
+let searchDebounce = null;
+
+function filterCards() {
+    const query = studentSearch.value.toLowerCase().trim();
+    
+    studentCards.forEach(card => {
+        const name = (card.dataset.name || '').toLowerCase();
+        const phone = (card.dataset.phone || '').toLowerCase();
+        const statusCode = card.dataset.statusCode || '0';
+        const parent = card.closest('.col-md-6');
+        
+        const matchesSearch = query === '' || name.includes(query) || phone.includes(query);
+        const matchesStatus = currentStatusFilter === 'all' || statusCode === currentStatusFilter;
+        
+        parent.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
+    });
+}
+
+studentSearch.addEventListener('input', function() {
+    clearSearchBtn.style.display = this.value.length > 0 ? 'block' : 'none';
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(filterCards, 150);
+});
+
+clearSearchBtn.addEventListener('click', function() {
+    studentSearch.value = '';
+    this.style.display = 'none';
+    filterCards();
+});
+
+statusChips.forEach(chip => {
+    chip.addEventListener('click', function() {
+        statusChips.forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        currentStatusFilter = this.dataset.status;
+        filterCards();
+    });
+});
 
 document.getElementById('studentModal').addEventListener('show.bs.modal', function (event) {
     const card = event.relatedTarget;
@@ -364,6 +564,76 @@ function exitDeleteMode() {
 
 document.getElementById('studentModal').addEventListener('hidden.bs.modal', function () {
     showViewMode();
+});
+
+// Autocomplete поиск пользователей
+const availableUsers = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.AvailableUsers.Select(u => new { u.Id, u.FullName, u.Phone })));
+let searchTimeout = null;
+
+document.getElementById('userSearchInput').addEventListener('input', function() {
+    const query = this.value.toLowerCase().trim();
+    const resultsDiv = document.getElementById('userSearchResults');
+    
+    clearTimeout(searchTimeout);
+    
+    if (query.length < 1) {
+        resultsDiv.classList.remove('show');
+        resultsDiv.innerHTML = '';
+        return;
+    }
+    
+    searchTimeout = setTimeout(() => {
+        const filtered = availableUsers.filter(u => 
+            u.FullName.toLowerCase().includes(query) || 
+            u.Phone.includes(query)
+        ).slice(0, 10);
+        
+        if (filtered.length === 0) {
+            resultsDiv.innerHTML = '<div class="no-results">Пользователи не найдены</div>';
+        } else {
+            resultsDiv.innerHTML = filtered.map(u => `
+                <div class="user-search-item" onclick="selectUser('${u.Id}', '${u.FullName}', '${u.Phone}')">
+                    <div class="user-avatar-sm">${u.FullName.charAt(0).toUpperCase()}</div>
+                    <div>
+                        <div class="fw-medium">${u.FullName}</div>
+                        <small class="text-muted">${u.Phone}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        resultsDiv.classList.add('show');
+    }, 200);
+});
+
+function selectUser(id, name, phone) {
+    document.getElementById('selectedUserId').value = id;
+    document.getElementById('selectedUserName').textContent = name;
+    document.getElementById('selectedUserPhone').textContent = phone;
+    document.getElementById('selectedUserAvatar').textContent = name.charAt(0).toUpperCase();
+    document.getElementById('selectedUserDisplay').style.display = 'block';
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('userSearchResults').classList.remove('show');
+    document.getElementById('btnCreateStudent').disabled = false;
+}
+
+function clearSelectedUser() {
+    document.getElementById('selectedUserId').value = '';
+    document.getElementById('selectedUserDisplay').style.display = 'none';
+    document.getElementById('btnCreateStudent').disabled = true;
+}
+
+// Скрыть результаты при клике вне поля
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('#userSearchInput') && !e.target.closest('#userSearchResults')) {
+        document.getElementById('userSearchResults').classList.remove('show');
+    }
+});
+
+// Сброс модалки при закрытии
+document.getElementById('createModal').addEventListener('hidden.bs.modal', function() {
+    clearSelectedUser();
+    document.getElementById('userSearchInput').value = '';
+    document.getElementById('createNotes').value = '';
 });
 </script>
 }

@@ -29,7 +29,7 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        Users = await _usersService.ListAsync(Search, null, CurrentPage, PageSize);
+        Users = await _usersService.ListAsync(search: Search, page: CurrentPage, pageSize: PageSize);
     }
 
     public async Task<IActionResult> OnPostDeleteAsync(Guid id)

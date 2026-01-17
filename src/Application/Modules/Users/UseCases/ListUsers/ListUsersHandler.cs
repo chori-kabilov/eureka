@@ -38,6 +38,15 @@ public class ListUsersHandler(IDataContext db)
                 query = query.Where(u => u.AdminProfile == null);
         }
 
+        // Фильтр по Student
+        if (request.HasStudent.HasValue)
+        {
+            if (request.HasStudent.Value)
+                query = query.Where(u => u.StudentProfile != null);
+            else
+                query = query.Where(u => u.StudentProfile == null);
+        }
+
         // Подсчёт
         var totalCount = await query.CountAsync(ct);
 

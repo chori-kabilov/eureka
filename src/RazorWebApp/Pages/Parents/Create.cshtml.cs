@@ -50,7 +50,7 @@ public class CreateModel : PageModel
 
     private async Task LoadAvailableUsers()
     {
-        var users = await _usersService.ListAsync(null, null, 1);
+        var users = await _usersService.ListAsync(pageSize: 100);
         if (users?.Items != null)
         {
             AvailableUsers = users.Items.Where(u => !u.IsParent).ToList();
