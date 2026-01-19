@@ -3,7 +3,6 @@ using Domain.Groups;
 using Domain.Schedule;
 using Domain.Journal;
 using Domain.Grading;
-using Domain.Groups;
 
 namespace Application.Modules.Groups.Mapping;
 

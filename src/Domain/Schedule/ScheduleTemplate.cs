@@ -1,9 +1,5 @@
 using Domain.Common;
 using Domain.Groups;
-using Domain.Schedule;
-using Domain.Journal;
-using Domain.Grading;
-using Domain.Groups;
 using Domain.Rooms;
 
 namespace Domain.Schedule;

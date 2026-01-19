@@ -12,6 +12,10 @@ public class Student : BaseEntity
     public StudentStatus Status { get; set; }
     public string? Notes { get; set; }
     
+    // Академическая информация
+    public DateTime EnrollmentDate { get; set; }
+    public EducationLevel? EducationLevel { get; set; }
+    
     // Если был ребёнком — ссылка на исходные данные
     public Guid? ChildId { get; set; }
     public Child? Child { get; set; }

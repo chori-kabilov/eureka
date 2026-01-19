@@ -12,15 +12,55 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
 
         builder.HasKey(e => e.Id);
 
+        builder.Property(e => e.Id).HasColumnName("id");
+        
         builder.Property(e => e.Name)
+            .HasColumnName("name")
             .IsRequired()
             .HasMaxLength(200);
 
         builder.Property(e => e.Code)
+            .HasColumnName("code")
             .HasMaxLength(50);
 
+        builder.Property(e => e.CourseId)
+            .HasColumnName("course_id");
+
+        builder.Property(e => e.ResponsibleTeacherId)
+            .HasColumnName("responsible_teacher_id");
+
+        builder.Property(e => e.DefaultTeacherId)
+            .HasColumnName("default_teacher_id");
+
+        builder.Property(e => e.DefaultRoomId)
+            .HasColumnName("default_room_id");
+
+        builder.Property(e => e.GradingSystemId)
+            .HasColumnName("grading_system_id");
+
+        builder.Property(e => e.StartDate)
+            .HasColumnName("start_date");
+
+        builder.Property(e => e.EndDate)
+            .HasColumnName("end_date");
+
+        builder.Property(e => e.MaxStudents)
+            .HasColumnName("max_students");
+
+        builder.Property(e => e.Status)
+            .HasColumnName("status");
+
         builder.Property(e => e.Notes)
+            .HasColumnName("notes")
             .HasMaxLength(1000);
+
+        // Аудит
+        builder.Property(e => e.CreatedAt).HasColumnName("created_at");
+        builder.Property(e => e.CreatedBy).HasColumnName("created_by");
+        builder.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(e => e.UpdatedBy).HasColumnName("updated_by");
+        builder.Property(e => e.IsDeleted).HasColumnName("is_deleted");
+        builder.Property(e => e.DeletedAt).HasColumnName("deleted_at");
 
         builder.HasOne(e => e.Course)
             .WithMany()
@@ -49,6 +89,6 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
 
         builder.HasIndex(e => e.Code)
             .IsUnique()
-            .HasFilter("\"Code\" IS NOT NULL");
+            .HasFilter("\"code\" IS NOT NULL");
     }
 }

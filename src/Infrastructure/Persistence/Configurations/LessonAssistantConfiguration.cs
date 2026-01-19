@@ -12,7 +12,13 @@ public class LessonAssistantConfiguration : IEntityTypeConfiguration<LessonAssis
 
         builder.HasKey(e => new { e.LessonId, e.TeacherId, e.StudentId, e.ChildId });
 
+        builder.Property(e => e.LessonId).HasColumnName("lesson_id");
+        builder.Property(e => e.TeacherId).HasColumnName("teacher_id");
+        builder.Property(e => e.StudentId).HasColumnName("student_id");
+        builder.Property(e => e.ChildId).HasColumnName("child_id");
+        
         builder.Property(e => e.Role)
+            .HasColumnName("role")
             .HasMaxLength(100);
 
         builder.HasOne(e => e.Lesson)
@@ -33,6 +39,7 @@ public class LessonAssistantConfiguration : IEntityTypeConfiguration<LessonAssis
         builder.HasOne(e => e.Child)
             .WithMany()
             .HasForeignKey(e => e.ChildId)
+            .IsRequired(false)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

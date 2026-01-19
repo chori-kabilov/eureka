@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations;
 
-// EF конфигурация для User
+// Конфигурация User
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
@@ -13,8 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.HasKey(u => u.Id);
 
-        builder.Property(u => u.Id)
-            .HasColumnName("id");
+        builder.Property(u => u.Id).HasColumnName("id");
 
         builder.Property(u => u.Phone)
             .HasColumnName("phone")
@@ -30,18 +29,35 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("password_hash")
             .IsRequired();
 
+        builder.Property(u => u.BirthDate)
+            .HasColumnName("birth_date");
+
+        builder.Property(u => u.Gender)
+            .HasColumnName("gender");
+
+        builder.Property(u => u.Nationality)
+            .HasColumnName("nationality")
+            .HasMaxLength(100);
+
+        builder.Property(u => u.Address)
+            .HasColumnName("address")
+            .HasMaxLength(500);
+
+        builder.Property(u => u.ProfilePhotoUrl)
+            .HasColumnName("profile_photo_url")
+            .HasMaxLength(500);
+
         // Аудит
         builder.Property(u => u.CreatedAt).HasColumnName("created_at");
         builder.Property(u => u.CreatedBy).HasColumnName("created_by");
         builder.Property(u => u.UpdatedAt).HasColumnName("updated_at");
         builder.Property(u => u.UpdatedBy).HasColumnName("updated_by");
-
-        // Soft delete
         builder.Property(u => u.IsDeleted).HasColumnName("is_deleted").HasDefaultValue(false);
         builder.Property(u => u.DeletedAt).HasColumnName("deleted_at");
 
-        // Индексы
         builder.HasIndex(u => u.Phone).IsUnique().HasDatabaseName("idx_users_phone");
         builder.HasIndex(u => u.IsDeleted).HasDatabaseName("idx_users_is_deleted");
+
+        builder.HasQueryFilter(u => !u.IsDeleted);
     }
 }

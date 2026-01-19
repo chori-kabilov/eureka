@@ -86,6 +86,9 @@ public class DataContext(
         modelBuilder.Entity<Lesson>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Attendance>().HasQueryFilter(e => !e.IsDeleted);
         modelBuilder.Entity<Grade>().HasQueryFilter(e => !e.IsDeleted);
+        
+        // LessonAssistant фильтруется по удалённому уроку
+        modelBuilder.Entity<LessonAssistant>().HasQueryFilter(e => !e.Lesson.IsDeleted);
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

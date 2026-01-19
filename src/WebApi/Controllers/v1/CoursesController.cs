@@ -7,6 +7,7 @@ using Application.Modules.Courses.UseCases.GetCourse;
 using Application.Modules.Courses.UseCases.ListCourses;
 using Application.Modules.Courses.UseCases.UpdateCourse;
 using Domain.Courses;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApi.Extensions;
 using WebApi.Contracts.Common;
@@ -14,6 +15,7 @@ using WebApi.Contracts.Common;
 namespace WebApi.Controllers.v1;
 
 [ApiController]
+[Authorize(Roles = "Admin")]
 [Route("api/v1/[controller]")]
 public class CoursesController(
     CreateCourseHandler createHandler,

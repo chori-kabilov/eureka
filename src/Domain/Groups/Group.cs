@@ -1,9 +1,5 @@
 using Domain.Common;
 using Domain.Courses;
-using Domain.Groups;
-using Domain.Schedule;
-using Domain.Journal;
-using Domain.Grading;
 using Domain.Grading;
 using Domain.Rooms;
 using Domain.Schedule;

@@ -12,6 +12,8 @@ public class Child : BaseEntity
     
     public string FullName { get; set; } = string.Empty;
     public DateTime? BirthDate { get; set; }
+    public Gender? Gender { get; set; }
+    public EducationLevel? EducationLevel { get; set; }
     public StudentStatus Status { get; set; }
     public string? Notes { get; set; }
     

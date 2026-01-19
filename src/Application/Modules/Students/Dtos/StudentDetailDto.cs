@@ -1,8 +1,7 @@
 namespace Application.Modules.Students.Dtos;
 
-// Детальный DTO студента
+// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ DTO пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 public class StudentDetailDto : StudentDto
 {
-    public string? Notes { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

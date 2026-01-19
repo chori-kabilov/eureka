@@ -1,8 +1,4 @@
 using Domain.Common;
-using Domain.Groups;
-using Domain.Schedule;
-using Domain.Journal;
-using Domain.Grading;
 
 namespace Domain.Grading;
 

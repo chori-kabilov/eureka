@@ -14,6 +14,12 @@ public class User : BaseEntity
     public string PasswordHash { get; set; } = string.Empty;
     public DateTime? BirthDate { get; set; }
     
+    // Персональные данные
+    public Gender? Gender { get; set; }
+    public string? Nationality { get; set; }
+    public string? Address { get; set; }
+    public string? ProfilePhotoUrl { get; set; }
+    
     // Профили (один User может иметь несколько)
     public Admin? AdminProfile { get; set; }
     public Student? StudentProfile { get; set; }
